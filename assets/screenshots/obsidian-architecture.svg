@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Obsidian architecture screenshot placeholder</title>
+  <desc id="desc">Placeholder for an Obsidian screenshot showing the architecture note and Mermaid diagram.</desc>
+  <rect width="1200" height="720" fill="#f6f8fb"/>
+  <rect x="50" y="45" width="1100" height="630" rx="10" fill="#ffffff" stroke="#c8d0dc" stroke-width="2"/>
+  <text x="90" y="105" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#182433">Architecture</text>
+  <text x="90" y="158" font-family="Arial, sans-serif" font-size="21" fill="#34465c">Placeholder for the Obsidian architecture note.</text>
+  <rect x="125" y="235" width="190" height="70" rx="8" fill="#e8f3ff" stroke="#94bfe8"/>
+  <rect x="395" y="235" width="190" height="70" rx="8" fill="#eaf7ee" stroke="#9acfa7"/>
+  <rect x="665" y="235" width="190" height="70" rx="8" fill="#fff4e4" stroke="#e7bf7a"/>
+  <rect x="395" y="405" width="190" height="70" rx="8" fill="#f3eafa" stroke="#c4a2df"/>
+  <rect x="665" y="405" width="190" height="70" rx="8" fill="#fcecec" stroke="#dda0a0"/>
+  <path d="M315 270 H395" stroke="#66758a" stroke-width="3"/>
+  <path d="M585 270 H665" stroke="#66758a" stroke-width="3"/>
+  <path d="M490 305 V405" stroke="#66758a" stroke-width="3"/>
+  <path d="M760 305 V405" stroke="#66758a" stroke-width="3"/>
+  <text x="165" y="278" font-family="Arial, sans-serif" font-size="20" fill="#1f4770">src package</text>
+  <text x="440" y="278" font-family="Arial, sans-serif" font-size="20" fill="#28613a">Graphify</text>
+  <text x="710" y="278" font-family="Arial, sans-serif" font-size="20" fill="#7a541f">LangGraph</text>
+  <text x="455" y="448" font-family="Arial, sans-serif" font-size="20" fill="#5b3376">reports</text>
+  <text x="720" y="448" font-family="Arial, sans-serif" font-size="20" fill="#7a3333">tests</text>
+  <text x="90" y="610" font-family="Arial, sans-serif" font-size="20" fill="#34465c">Replace with a screenshot showing the real Mermaid diagram rendered inside Obsidian.</text>
+</svg>

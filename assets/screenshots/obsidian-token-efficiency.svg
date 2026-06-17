@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Obsidian token-efficiency screenshot placeholder</title>
+  <desc id="desc">Placeholder for an Obsidian screenshot showing token-efficiency notes and measured comparison.</desc>
+  <rect width="1200" height="720" fill="#f7f8fb"/>
+  <rect x="55" y="50" width="1090" height="620" rx="10" fill="#ffffff" stroke="#c8d0dc" stroke-width="2"/>
+  <text x="95" y="110" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#182433">Token Efficiency</text>
+  <text x="95" y="160" font-family="Arial, sans-serif" font-size="21" fill="#34465c">Measured local-model comparison placeholder.</text>
+  <rect x="110" y="230" width="980" height="260" rx="8" fill="#f9fbfe" stroke="#d6deea"/>
+  <text x="150" y="285" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#182433">Workflow</text>
+  <text x="500" y="285" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#182433">Avg total tokens</text>
+  <text x="835" y="285" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#182433">Success</text>
+  <line x1="130" y1="315" x2="1070" y2="315" stroke="#d6deea" stroke-width="2"/>
+  <text x="150" y="370" font-family="Arial, sans-serif" font-size="23" fill="#34465c">Naive full-context</text>
+  <text x="545" y="370" font-family="Arial, sans-serif" font-size="23" fill="#34465c">2704.0</text>
+  <text x="870" y="370" font-family="Arial, sans-serif" font-size="23" fill="#34465c">0.9</text>
+  <text x="150" y="430" font-family="Arial, sans-serif" font-size="23" fill="#34465c">Graphify-guided</text>
+  <text x="545" y="430" font-family="Arial, sans-serif" font-size="23" fill="#34465c">1241.2</text>
+  <text x="870" y="430" font-family="Arial, sans-serif" font-size="23" fill="#34465c">1.0</text>
+  <text x="95" y="570" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#182433">Average reduction: 2.18x</text>
+  <text x="95" y="615" font-family="Arial, sans-serif" font-size="20" fill="#34465c">Replace with a screenshot of obsidian/token-efficiency.md or the rendered measured report.</text>
+</svg>

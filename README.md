@@ -8,12 +8,15 @@ bug remains in source so the AI must diagnose it and suggest a solution.
 
 ## Selected Repository
 
-Source: `andela/buggy-python`
+Source: `andela/buggy-python` (HW PDF recommendation).
 
 I selected this repository because it is intentionally small, Python-only, and
 contains classic debugging exercises. That keeps the assignment focused on
 reverse engineering, graph navigation, root-cause analysis, and measurable
-agent workflow design instead of dependency setup.
+agent workflow design instead of dependency setup. It also keeps the prompts
+small enough to stay compatible with local AI models running through Ollama,
+which was important for measuring token usage locally instead of depending on a
+cloud-only model.
 
 ## Repository Layout
 
@@ -111,6 +114,13 @@ Measured with local model `gemma4:e2b` through Ollama over 10 runs:
 
 Average total-token reduction: `2.18x`.
 
+During local testing, different models showed different behavior. Larger or
+reasoning-heavy models produced longer completions and sometimes took much
+longer to finish, while smaller local models produced shorter but less stable
+answers. The final committed comparison uses one reproducible 10-run local trial
+with `gemma4:e2b`; earlier exploratory runs with other local models showed why
+the selected codebase needed to remain small enough for local inference.
+
 To reproduce the measured comparison:
 
 ```powershell
@@ -129,6 +139,30 @@ Diagram artifacts:
 - `artifacts/architecture-diagram.mmd`
 - `artifacts/oop-diagram.mmd`
 - `artifacts/investigation-flow.mmd`
+
+## Obsidian Screenshots
+
+The images below are placeholders. Replace them with real Obsidian screenshots
+after opening the `obsidian/` folder as a vault.
+
+![Obsidian vault index placeholder](assets/screenshots/obsidian-index.svg)
+
+The vault index should show the linked note structure: `hot`, `architecture`,
+`oop`, `bug-investigation`, `agent-workflow`, `token-efficiency`, and
+`before-after`. This demonstrates that the reverse-engineering evidence is
+navigable as an Obsidian knowledge base rather than isolated Markdown files.
+
+![Obsidian architecture note placeholder](assets/screenshots/obsidian-architecture.svg)
+
+The architecture screenshot should show the Mermaid block diagram from
+`obsidian/architecture.md`, connecting the extracted package, Graphify graph,
+LangGraph workflow, tests, reports, and vault notes.
+
+![Obsidian token note placeholder](assets/screenshots/obsidian-token-efficiency.svg)
+
+The token-efficiency screenshot should show the measured local-model comparison:
+naive full-context prompting versus Graphify-guided prompting, including average
+tokens and success rates.
 
 ## Run It
 

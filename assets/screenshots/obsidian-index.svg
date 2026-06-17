@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Obsidian vault index screenshot placeholder</title>
+  <desc id="desc">Placeholder for an Obsidian screenshot showing the vault index and linked notes.</desc>
+  <rect width="1200" height="720" fill="#f5f7fb"/>
+  <rect x="40" y="40" width="1120" height="640" rx="10" fill="#ffffff" stroke="#c8d0dc" stroke-width="2"/>
+  <rect x="40" y="40" width="260" height="640" rx="10" fill="#eef2f7"/>
+  <text x="70" y="90" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#223044">Obsidian Vault</text>
+  <text x="70" y="145" font-family="Arial, sans-serif" font-size="20" fill="#44556b">index.md</text>
+  <text x="70" y="185" font-family="Arial, sans-serif" font-size="20" fill="#44556b">hot.md</text>
+  <text x="70" y="225" font-family="Arial, sans-serif" font-size="20" fill="#44556b">architecture.md</text>
+  <text x="70" y="265" font-family="Arial, sans-serif" font-size="20" fill="#44556b">agent-workflow.md</text>
+  <text x="70" y="305" font-family="Arial, sans-serif" font-size="20" fill="#44556b">token-efficiency.md</text>
+  <text x="345" y="105" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#182433">EX04 Vault Index</text>
+  <text x="345" y="165" font-family="Arial, sans-serif" font-size="22" fill="#34465c">Replace this placeholder with a real Obsidian screenshot.</text>
+  <text x="345" y="225" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#182433">Expected view</text>
+  <text x="345" y="270" font-family="Arial, sans-serif" font-size="21" fill="#34465c">Linked notes for architecture, bug investigation, workflow, and token evidence.</text>
+  <rect x="345" y="330" width="220" height="70" rx="8" fill="#e8f3ff" stroke="#94bfe8"/>
+  <rect x="610" y="330" width="220" height="70" rx="8" fill="#eaf7ee" stroke="#9acfa7"/>
+  <rect x="875" y="330" width="220" height="70" rx="8" fill="#fff4e4" stroke="#e7bf7a"/>
+  <text x="385" y="373" font-family="Arial, sans-serif" font-size="20" fill="#1f4770">[[architecture]]</text>
+  <text x="650" y="373" font-family="Arial, sans-serif" font-size="20" fill="#28613a">[[agent-workflow]]</text>
+  <text x="915" y="373" font-family="Arial, sans-serif" font-size="20" fill="#7a541f">[[token-efficiency]]</text>
+</svg>

@@ -13,7 +13,7 @@ Measured with `gemma4:e2b` through Ollama over 10 runs.
 Average total-token reduction: `2.18x`.
 
 The naive prompt sends the whole source and tests. The graph-guided prompt sends
-the `foo()` graph neighborhood, target file, and preserved original bug snippet.
+the `foo()` graph neighborhood and the broken target file.
 
 Reproduction command:
 
