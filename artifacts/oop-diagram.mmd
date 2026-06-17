@@ -10,7 +10,7 @@ classDiagram
   }
   class FoobarModule {
     <<module>>
-    +foo(bar=None) list
+    +foo(bar=[]) list
   }
   class IoModule {
     <<module>>
@@ -33,4 +33,3 @@ classDiagram
   BuggyPythonPackage --> IoModule : re-exports
   BuggyPythonPackage --> LoopModule : re-exports
   IoModule --> LoanRecord : reads JSON records
-

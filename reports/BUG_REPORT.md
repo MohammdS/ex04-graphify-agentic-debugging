@@ -13,8 +13,6 @@ the assignment on environment setup.
 
 Mutable default argument in `foo()`.
 
-The preserved pre-fix evidence is stored in `data/original-bug-context.json`.
-
 Original pattern:
 
 ```python
@@ -47,7 +45,7 @@ Python default arguments are evaluated once at function definition time. Because
 the default value is a mutable list, every call without an explicit `bar` argument
 mutates the same list object.
 
-## Fix
+## Suggested Fix
 
 Use `None` as a sentinel and allocate a new list per implicit call:
 
@@ -69,9 +67,10 @@ def test_foo_does_not_share_default_list_between_calls():
     assert foo() == ["baz"]
 ```
 
-Verification result:
+The source is intentionally not modified in this submission. The regression test
+is marked expected-failure to document the bug:
 
 ```text
 python -m pytest -q
-3 passed
+2 passed, 1 xfailed
 ```

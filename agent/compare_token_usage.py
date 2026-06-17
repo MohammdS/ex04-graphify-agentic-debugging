@@ -3,7 +3,7 @@
 This script sends two prompts to an OpenAI-compatible local or remote model:
 
 1. Naive: full project source context.
-2. Graph-guided: Graphify target node neighborhood plus original bug context.
+2. Graph-guided: Graphify target node neighborhood plus target source.
 
 It writes machine-readable JSON and a Markdown summary that can be used as
 assignment evidence.
@@ -21,7 +21,6 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 GRAPH_PATH = ROOT / "data" / "graph.json"
-BUG_CONTEXT_PATH = ROOT / "data" / "original-bug-context.json"
 OUTPUT_JSON = ROOT / "data" / "measured-token-comparison.json"
 OUTPUT_MD = ROOT / "reports" / "MEASURED_TOKEN_COMPARISON.md"
 
@@ -70,7 +69,6 @@ def graph_context(target_label: str) -> dict[str, Any]:
     return {
         "target": target_nodes,
         "neighbors": neighbors,
-        "original_bug_context": json.loads(BUG_CONTEXT_PATH.read_text(encoding="utf-8")),
     }
 
 
@@ -80,11 +78,11 @@ def build_naive_prompt(question: str) -> str:
             "task": question,
             "instruction": (
                 "Reverse engineer the project from the supplied full source, "
-                "identify the bug, explain the root cause, and propose a fix."
+                "identify the bug, explain the root cause, and suggest a minimal fix. "
+                "Do not modify files; return only the diagnosis and proposed patch."
             ),
             "source_files": read_text_files(ROOT / "src"),
             "tests": read_text_files(ROOT / "tests"),
-            "original_bug_context": json.loads(BUG_CONTEXT_PATH.read_text(encoding="utf-8")),
         },
         indent=2,
     )
@@ -96,7 +94,9 @@ def build_graph_prompt(question: str, target_label: str) -> str:
             "task": question,
             "instruction": (
                 "Use the graph context first. Inspect only the target source "
-                "needed by the graph neighborhood, then identify root cause and fix."
+                "needed by the graph neighborhood, then identify root cause and "
+                "suggest a minimal fix. Do not modify files; return only the "
+                "diagnosis and proposed patch."
             ),
             "graph_context": graph_context(target_label),
             "target_source": {
@@ -306,7 +306,7 @@ def main() -> None:
             "Missing dependency: openai. Run `python -m pip install -r requirements.txt` first."
         ) from exc
 
-    question = "Why does foo() return a growing list on repeated calls, and what is the minimal fix?"
+    question = "Why does foo() return a growing list on repeated calls, and what fix should be suggested?"
     client = OpenAI(api_key=args.api_key, base_url=args.base_url)
     results = []
     for iteration in range(1, args.runs + 1):

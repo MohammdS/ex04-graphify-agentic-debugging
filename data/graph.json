@@ -48,7 +48,7 @@
       "norm_label": "default argument example from the selected buggy repository."
     },
     {
-      "label": "Return a list containing a single ``\"baz\"`` item.      The original implementati",
+      "label": "Return a list containing ``\"baz\"``.      This intentionally preserves the origin",
       "file_type": "rationale",
       "source_file": "src/buggy_python/foobar.py",
       "source_location": "L5",
@@ -56,7 +56,7 @@
       "id": "buggy_python_foobar_rationale_5",
       "community": 1,
       "community_name": "Community 1",
-      "norm_label": "return a list containing a single ``\"baz\"`` item.      the original implementati"
+      "norm_label": "return a list containing ``\"baz\"``.      this intentionally preserves the origin"
     },
     {
       "label": "io.py",
@@ -543,5 +543,6 @@
       "confidence_score": 1.0
     }
   ],
-  "hyperedges": []
+  "hyperedges": [],
+  "built_at_commit": "191ceb06e2fc8a6bf66e32f3b2e6dec59ef5e9ad"
 }

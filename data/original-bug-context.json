@@ -2,6 +2,6 @@
   "repository": "andela/buggy-python",
   "file": "snippets/foobar.py",
   "original_source": "\"\"\"\nThe purpose of this snippet is to test your knowledge of\ndefault arguments for functions in python and how they\ncan be misused\n\"\"\"\n\n\ndef foo(bar=[]):\n    bar.append(\"baz\")\n    return bar\n",
-  "failing_expectation": "Two calls to foo() should each return [\"baz\"], but the original mutable default list makes the second call return [\"baz\", \"baz\"]."
+  "failing_expectation": "Two calls to foo() should each return [\"baz\"], but the mutable default list makes the second call return [\"baz\", \"baz\"].",
+  "expected_solution": "Suggest changing the signature to foo(bar=None) and creating a new list inside the function when bar is None. Do not modify source during the token comparison."
 }
-

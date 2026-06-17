@@ -6,5 +6,4 @@ Run the smallest reliable verification command first. For this project, use:
 python -m pytest -q
 ```
 
-Report pass/fail status and the relevant output.
-
+Report pass/fail/xfail status and the relevant output.

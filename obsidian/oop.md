@@ -17,7 +17,7 @@ classDiagram
   }
   class FoobarModule {
     <<module>>
-    +foo(bar=None) list
+    +foo(bar=[]) list
   }
   class IoModule {
     <<module>>
@@ -44,4 +44,3 @@ classDiagram
 
 This is still an OOP/class relationship artifact because it records the absence
 of classes and the effective public interface boundaries.
-

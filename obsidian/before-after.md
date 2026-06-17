@@ -1,8 +1,8 @@
-# Before and After
+# Broken Code and Suggested Fix
 
-## Before
+## Broken Code
 
-The original `andela/buggy-python` implementation used a mutable default list:
+The repository intentionally preserves the mutable default list bug:
 
 ```python
 def foo(bar=[]):
@@ -17,9 +17,9 @@ foo()  # ["baz"]
 foo()  # ["baz", "baz"]
 ```
 
-## After
+## Suggested Fix
 
-The fixed implementation uses `None` as the default sentinel:
+The suggested implementation uses `None` as the default sentinel:
 
 ```python
 def foo(bar=None):
@@ -29,10 +29,9 @@ def foo(bar=None):
     return bar
 ```
 
-Verification:
+Verification keeps the bug test as expected-failing:
 
 ```text
 python -m pytest -q
-3 passed
+2 passed, 1 xfailed
 ```
-

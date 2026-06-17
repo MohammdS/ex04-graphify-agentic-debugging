@@ -2,8 +2,9 @@
 
 This repository is a complete EX04 submission. It reverse engineers a small
 unfamiliar Python debugging codebase, generates Graphify artifacts, documents
-the architecture in an Obsidian-style vault, fixes one bug, and compares token
-usage between naive and graph-guided workflows.
+the architecture in an Obsidian-style vault, preserves one bug for diagnosis,
+and compares token usage between naive and graph-guided workflows. The selected
+bug remains in source so the AI must diagnose it and suggest a solution.
 
 ## Selected Repository
 
@@ -29,9 +30,10 @@ artifacts/
 data/
 ```
 
-## Bug Fixed
+## Bug Preserved
 
-The selected bug is the mutable default argument in `foo()`.
+The selected bug is the mutable default argument in `foo()`. The repository keeps
+the broken implementation intentionally:
 
 Original broken behavior:
 
@@ -41,8 +43,8 @@ def foo(bar=[]):
     return bar
 ```
 
-Because Python evaluates default arguments once, repeated calls reused the same
-list. The fix uses `None` as a sentinel:
+Because Python evaluates default arguments once, repeated calls reuse the same
+list. The expected suggested fix is to use `None` as a sentinel:
 
 ```python
 def foo(bar=None):
@@ -86,8 +88,9 @@ Workflow stages:
 2. `bug_investigator` loads `agent/prompts/bug_investigator.md` and asks an LLM
    to identify the root cause from graph-bounded context.
 3. `fix_planner` loads `agent/prompts/fix_planner.md` and asks an LLM for a
-   minimal patch and regression-test plan.
-4. `verifier` runs `python -m pytest -q`.
+   minimal patch and regression-test plan without modifying source.
+4. `verifier` runs `python -m pytest -q`; the known bug regression is marked
+   `xfail` so the suite documents the bug without requiring it to be patched.
 
 Set `OPENAI_API_KEY` to run the investigation and planning steps with an LLM.
 `OPENAI_MODEL` is optional. If no API key is present, the workflow marks
@@ -103,10 +106,10 @@ Measured with local model `gemma4:e2b` through Ollama over 10 runs:
 
 | Workflow | Avg prompt tokens | Avg completion tokens | Avg total tokens | Success rate |
 | --- | ---: | ---: | ---: | ---: |
-| Naive full-context | 2061.0 | 1315.4 | 3376.4 | 1.0 |
-| Graphify-guided | 851.0 | 578.5 | 1429.5 | 0.9 |
+| Naive full-context | 1914.0 | 790.0 | 2704.0 | 0.9 |
+| Graphify-guided | 683.0 | 558.2 | 1241.2 | 1.0 |
 
-Average total-token reduction: `2.36x`.
+Average total-token reduction: `2.18x`.
 
 To reproduce the measured comparison:
 
@@ -114,8 +117,8 @@ To reproduce the measured comparison:
 python agent\compare_token_usage.py --base-url http://localhost:11434/v1 --api-key ollama --model gemma4:e2b --runs 10
 ```
 
-The LLM prompts include `data/original-bug-context.json`, which preserves the
-pre-fix broken `foo(bar=[])` snippet for honest before/after investigation.
+The LLM prompts use the current broken source. `data/original-bug-context.json`
+stores the expected behavior and suggested-solution criteria.
 
 ## Diagrams and Vault
 
@@ -158,5 +161,5 @@ python agent\workflow.py
 Expected verification:
 
 ```text
-3 passed
+2 passed, 1 xfailed
 ```

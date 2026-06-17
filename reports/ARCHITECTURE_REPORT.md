@@ -5,7 +5,7 @@
 The submission extracts a small Python package from `andela/buggy-python` and
 turns it into a testable project. The package has three modules:
 
-- `foobar.py`: default-argument behavior and selected bug fix.
+- `foobar.py`: default-argument behavior and selected preserved bug.
 - `io.py`: loan JSON loading and aggregate calculations.
 - `loop.py`: lambda factory behavior.
 
@@ -23,11 +23,10 @@ turns it into a testable project. The package has three modules:
 
 The graph shows `foo()` is contained in `foobar.py` and imported by
 `__init__.py`. It does not affect loan calculations or lambda generation. That
-allowed a narrow patch and a focused regression test.
+allows a narrow suggested patch and a focused regression test.
 
 ## Diagrams
 
 - Block diagram: `artifacts/architecture-diagram.mmd`
 - Class/module diagram: `artifacts/oop-diagram.mmd`
 - Investigation flow: `artifacts/investigation-flow.mmd`
-

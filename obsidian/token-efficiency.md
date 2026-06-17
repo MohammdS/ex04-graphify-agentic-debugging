@@ -7,10 +7,10 @@ Measured with `gemma4:e2b` through Ollama over 10 runs.
 
 | Workflow | Avg prompt tokens | Avg completion tokens | Avg total tokens | Success rate |
 | --- | ---: | ---: | ---: | ---: |
-| Naive full-context | 2061.0 | 1315.4 | 3376.4 | 1.0 |
-| Graphify-guided | 851.0 | 578.5 | 1429.5 | 0.9 |
+| Naive full-context | 1914.0 | 790.0 | 2704.0 | 0.9 |
+| Graphify-guided | 683.0 | 558.2 | 1241.2 | 1.0 |
 
-Average total-token reduction: `2.36x`.
+Average total-token reduction: `2.18x`.
 
 The naive prompt sends the whole source and tests. The graph-guided prompt sends
 the `foo()` graph neighborhood, target file, and preserved original bug snippet.

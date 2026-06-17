@@ -30,7 +30,7 @@ class DebugState(TypedDict, total=False):
     prompts: dict[str, str]
     graph_summary: dict[str, Any]
     source_context: dict[str, str]
-    original_bug_context: dict[str, Any]
+    bug_brief: dict[str, Any]
     evidence: list[str]
     root_cause: str
     fix_plan: list[str]
@@ -112,9 +112,9 @@ def graph_reader(state: DebugState) -> DebugState:
     ]
     source_context = _source_context_for(target_nodes)
     graph_context_tokens = _estimate_tokens(json.dumps(target_nodes + neighbors))
-    original_bug_context = json.loads(BUG_CONTEXT_PATH.read_text(encoding="utf-8"))
+    bug_brief = json.loads(BUG_CONTEXT_PATH.read_text(encoding="utf-8"))
     source_context_tokens = _estimate_tokens(json.dumps(source_context))
-    bug_context_tokens = _estimate_tokens(json.dumps(original_bug_context))
+    bug_context_tokens = _estimate_tokens(json.dumps(bug_brief))
     state["graph_summary"] = {
         "node_count": len(nodes),
         "edge_count": len(links),
@@ -126,7 +126,7 @@ def graph_reader(state: DebugState) -> DebugState:
         "estimated_context_tokens": graph_context_tokens + source_context_tokens + bug_context_tokens,
     }
     state["source_context"] = source_context
-    state["original_bug_context"] = original_bug_context
+    state["bug_brief"] = bug_brief
     state["prompts"] = {
         "graph_reader": _read_prompt("graph_reader.md"),
         "bug_investigator": _read_prompt("bug_investigator.md"),
@@ -145,7 +145,7 @@ def bug_investigator(state: DebugState) -> DebugState:
         {
             "question": state["question"],
             "graph_summary": state["graph_summary"],
-            "original_bug_context": state["original_bug_context"],
+            "bug_brief": state["bug_brief"],
             "source_context": state["source_context"],
             "task": "Identify the root cause and cite graph/source evidence.",
         },
@@ -176,7 +176,7 @@ def fix_planner(state: DebugState) -> DebugState:
             "root_cause": state["root_cause"],
             "evidence": state["evidence"],
             "llm_investigation": state["llm_outputs"].get("bug_investigator"),
-            "task": "Plan the minimal code fix and regression test.",
+            "task": "Suggest the minimal code fix and regression test. Do not modify files.",
         },
         indent=2,
     )

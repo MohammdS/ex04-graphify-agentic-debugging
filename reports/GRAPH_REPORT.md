@@ -2,8 +2,8 @@
 
 ## Tooling
 
-Graph extraction used Graphify (`graphifyy` package, CLI command `python -m
-graphify`).
+Graph extraction used Graphify (`graphifyy` package, CLI command
+`python -m graphify`).
 
 Commands:
 
@@ -41,6 +41,6 @@ python -m graphify cluster-only . --graph graphify-out\graph.json --no-label --n
 - `__init__.py --imports--> foo()`
 - `rationale node --rationale_for--> foo()`
 
-This gave the agent a precise inspection path: open `src/buggy_python/foobar.py`
-and confirm the package impact through `src/buggy_python/__init__.py`.
-
+This gives the agent a precise inspection path: open
+`src/buggy_python/foobar.py`, confirm the mutable default argument, and suggest
+the `None` sentinel fix without reading unrelated modules first.

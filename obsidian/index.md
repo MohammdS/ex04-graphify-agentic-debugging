@@ -1,6 +1,6 @@
 # EX04 Vault Index
 
-This vault documents the reverse-engineering and bug-fix workflow for the
+This vault documents the reverse-engineering and bug-diagnosis workflow for the
 selected repository: `andela/buggy-python`.
 
 ## Navigation
@@ -11,7 +11,7 @@ selected repository: `andela/buggy-python`.
 - [[bug-investigation]] - Root cause analysis for the selected bug
 - [[agent-workflow]] - LangGraph debugging workflow
 - [[token-efficiency]] - Naive vs graph-guided context comparison
-- [[before-after]] - Broken behavior, patch, and verification result
+- [[before-after]] - Broken behavior and suggested patch
 
 ## Key Evidence
 
