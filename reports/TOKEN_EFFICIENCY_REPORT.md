@@ -6,41 +6,38 @@ How much context is needed to identify and fix the selected `foo()` bug?
 
 ## Measurement Method
 
-- Naive workflow: read every file under `src/` before deciding where the bug is.
-- Graphify benchmark: use `python -m graphify benchmark data\graph.json`.
-- Targeted LangGraph workflow: send the LLM only the `foo()` node, its direct
-  graph neighborhood, and the target source file instead of the whole project.
+The final comparison uses one measured method only:
+
+- Model: `gemma4:e2b`
+- Runtime: Ollama OpenAI-compatible endpoint
+- Runs: 10
+- Naive prompt: full `src/`, tests, and original bug context
+- Graph-guided prompt: `foo()` graph neighborhood, target source, and original
+  bug context
+- Success criteria: correct mutable-default diagnosis and `bar=None` fix
 
 ## Results
 
-| Workflow | Estimated tokens | Reduction vs naive |
-| --- | ---: | ---: |
-| Naive full source read | 1,266 | 1.0x |
-| Graphify average query | 583 | 2.2x |
-| Targeted graph-guided LLM agent | 230 | 5.50x |
+| Workflow | Avg prompt tokens | Avg completion tokens | Avg total tokens | Success rate |
+| --- | ---: | ---: | ---: | ---: |
+| Naive full-context | 2061.0 | 1315.4 | 3376.4 | 1.0 |
+| Graphify-guided | 851.0 | 578.5 | 1429.5 | 0.9 |
+
+Average total-token reduction: `2.36x`.
 
 ## Interpretation
 
-The general Graphify query is already smaller than reading the whole source
-corpus. The targeted workflow is much smaller because the agent starts from a
-specific failing symbol, `foo()`, and uses the graph to pull only its direct
-neighbors, current source location, and original broken snippet.
+The graph-guided prompt used less than half the average total tokens of the
+naive prompt while still solving the bug in 9 of 10 runs. The naive prompt solved
+the bug in all 10 runs but paid for substantially more context.
 
-The token savings do not depend on the bug being difficult. The point is that a
-graph can bound the investigation before source inspection begins.
+The complete measured output is in:
 
-When `OPENAI_API_KEY` is configured, `agent/workflow.py` also records provider
-token usage in `llm_usage`. The saved comparison remains an estimate so the
-submission is reproducible without exposing private API logs.
+- `reports/MEASURED_TOKEN_COMPARISON.md`
+- `data/measured-token-comparison.json`
 
-For local measurement, use:
+To reproduce:
 
 ```powershell
-python agent\compare_token_usage.py --base-url http://localhost:11434/v1 --api-key local-ai --model llama3.1
+python agent\compare_token_usage.py --base-url http://localhost:11434/v1 --api-key ollama --model gemma4:e2b --runs 10
 ```
-
-That sends one naive full-context prompt and one graph-guided prompt to the same
-local OpenAI-compatible model, then writes:
-
-- `data/measured-token-comparison.json`
-- `reports/MEASURED_TOKEN_COMPARISON.md`

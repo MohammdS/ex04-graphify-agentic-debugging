@@ -18,7 +18,6 @@ selected repository: `andela/buggy-python`.
 - Graph artifact: `data/graph.json`
 - Graph report: `reports/GRAPH_REPORT.md`
 - Bug report: `reports/BUG_REPORT.md`
-- Token report: `reports/TOKEN_EFFICIENCY_REPORT.md`
+- Token report: `reports/MEASURED_TOKEN_COMPARISON.md`
 - Architecture report: `reports/ARCHITECTURE_REPORT.md`
 - Verification command: `python -m pytest -q`
-

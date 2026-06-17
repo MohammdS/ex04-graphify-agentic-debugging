@@ -1,25 +1,22 @@
 # Token Efficiency
 
-The token comparison measures context needed before identifying the bug.
-
-| Workflow | Context strategy | Estimated tokens |
-| --- | --- | ---: |
-| Naive | Read all source files under `src/` | 1,266 |
-| Graphify benchmark | Average graph query context | 583 |
-| Targeted LLM agent | `foo()` graph context, target source, and original bug snapshot | 230 |
-
-Graphify benchmark result:
-
-```text
-Corpus: 950 words -> ~1,266 tokens
-Avg query cost: ~583 tokens
-Reduction: 2.2x fewer tokens per query
-```
-
-The targeted LangGraph workflow is even smaller because it starts at the
-`foo()` graph node and sends the LLM graph-bounded context. If an API key is
-configured, the workflow also records actual provider usage in `llm_usage`.
-
-For a local-model measurement, run `agent/compare_token_usage.py`. It creates
-`data/measured-token-comparison.json` and
+The final token comparison uses the measured local-model report only:
 `reports/MEASURED_TOKEN_COMPARISON.md`.
+
+Measured with `gemma4:e2b` through Ollama over 10 runs.
+
+| Workflow | Avg prompt tokens | Avg completion tokens | Avg total tokens | Success rate |
+| --- | ---: | ---: | ---: | ---: |
+| Naive full-context | 2061.0 | 1315.4 | 3376.4 | 1.0 |
+| Graphify-guided | 851.0 | 578.5 | 1429.5 | 0.9 |
+
+Average total-token reduction: `2.36x`.
+
+The naive prompt sends the whole source and tests. The graph-guided prompt sends
+the `foo()` graph neighborhood, target file, and preserved original bug snippet.
+
+Reproduction command:
+
+```powershell
+python agent\compare_token_usage.py --base-url http://localhost:11434/v1 --api-key ollama --model gemma4:e2b --runs 10
+```

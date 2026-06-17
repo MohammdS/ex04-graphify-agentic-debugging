@@ -95,56 +95,27 @@ Set `OPENAI_API_KEY` to run the investigation and planning steps with an LLM.
 
 ## Token Efficiency
 
-| Workflow | Estimated tokens | Reduction vs naive |
-| --- | ---: | ---: |
-| Naive full source read | 1,266 | 1.0x |
-| Graphify average query | 583 | 2.2x |
-| Targeted graph-guided LLM agent | 230 | 5.50x |
+The committed token-efficiency evidence is the measured local-model trial in
+`reports/MEASURED_TOKEN_COMPARISON.md` and
+`data/measured-token-comparison.json`.
 
-Details are in `reports/TOKEN_EFFICIENCY_REPORT.md` and
-`data/token-comparison.json`.
+Measured with local model `gemma4:e2b` through Ollama over 10 runs:
 
-The LLM workflow also reads `data/original-bug-context.json`, which preserves the
+| Workflow | Avg prompt tokens | Avg completion tokens | Avg total tokens | Success rate |
+| --- | ---: | ---: | ---: | ---: |
+| Naive full-context | 2061.0 | 1315.4 | 3376.4 | 1.0 |
+| Graphify-guided | 851.0 | 578.5 | 1429.5 | 0.9 |
+
+Average total-token reduction: `2.36x`.
+
+To reproduce the measured comparison:
+
+```powershell
+python agent\compare_token_usage.py --base-url http://localhost:11434/v1 --api-key ollama --model gemma4:e2b --runs 10
+```
+
+The LLM prompts include `data/original-bug-context.json`, which preserves the
 pre-fix broken `foo(bar=[])` snippet for honest before/after investigation.
-
-To measure real token usage on a local model, run:
-
-```powershell
-.\scripts\run_local_comparison.ps1 -Model qwen3:8b
-```
-
-For a 10-run average:
-
-```powershell
-.\scripts\run_local_comparison.ps1 -Model qwen3:8b -Runs 10
-```
-
-Or call the Python script directly:
-
-```powershell
-python agent\compare_token_usage.py --base-url http://localhost:11434/v1 --api-key local-ai --model llama3.1
-```
-
-This writes `data/measured-token-comparison.json` and
-`reports/MEASURED_TOKEN_COMPARISON.md`. Setup notes are in
-`reports/LOCAL_AI_TOKEN_MEASUREMENT.md`. The measured report records token usage
-and whether each response found the correct root cause and `bar=None` fix.
-
-For a stronger workflow-level comparison, run two LangGraph workflows against
-the same local model:
-
-```powershell
-python agent\compare_agent_workflows.py --base-url http://localhost:11434/v1 --api-key ollama --model qwen3:8b
-```
-
-This writes `data/measured-agent-workflow-comparison.json` and
-`reports/MEASURED_AGENT_WORKFLOW_COMPARISON.md`.
-
-For slower local models, use:
-
-```powershell
-.\scripts\run_local_comparison.ps1 -Mode workflow -Model qwen3:8b -MaxTokens 120 -Timeout 120 -SkipVerifier
-```
 
 ## Diagrams and Vault
 
