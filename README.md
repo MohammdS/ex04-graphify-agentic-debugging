@@ -180,13 +180,25 @@ Run the LangGraph workflow:
 python agent\workflow.py
 ```
 
-Run it with an LLM:
+Run it with a cloud OpenAI-compatible LLM:
 
 ```powershell
 $env:OPENAI_API_KEY = "your_api_key"
 $env:OPENAI_MODEL = "your_model_name"
 python agent\workflow.py
 ```
+
+Run it with a local Ollama model:
+
+```powershell
+$env:OPENAI_BASE_URL = "http://localhost:11434/v1"
+$env:OPENAI_API_KEY = "ollama"
+$env:OPENAI_MODEL = "gemma4:e2b"
+python agent\workflow.py
+```
+
+The workflow diagnoses the preserved bug and suggests a patch. It does not
+modify `src/buggy_python/foobar.py`.
 
 Expected verification:
 

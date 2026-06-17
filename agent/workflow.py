@@ -71,7 +71,7 @@ def _call_llm(system_prompt: str, user_prompt: str) -> tuple[str | None, dict[st
         from openai import OpenAI
 
         model = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
-        client = OpenAI()
+        client = OpenAI(base_url=os.environ.get("OPENAI_BASE_URL") or None)
         response = client.chat.completions.create(
             model=model,
             temperature=0,
