@@ -1,0 +1,46 @@
+{
+  "model": "qwen3:8b",
+  "base_url": "http://localhost:11434/v1",
+  "results": [
+    {
+      "name": "naive_full_context",
+      "prompt_tokens": 1899,
+      "completion_tokens": 2376,
+      "total_tokens": 4275,
+      "estimated_prompt_tokens": 732,
+      "diagnosis_success": true,
+      "fix_success": true,
+      "success": true,
+      "success_criteria": [
+        "diagnosis_terms_found=['mutable default', 'default argument', 'shared', 'same list', 'function definition time']",
+        "fix_terms_found=['bar=none', 'is none', 'bar = []', 'new list']",
+        "requires mutable/default/shared-list diagnosis and None-sentinel fix"
+      ],
+      "response_preview": "The `foo()` function returns a growing list on repeated calls because the original implementation used a mutable default argument (`bar=[]`). Python evaluates default arguments once at function definition time, so repeated calls mutate the same list. \n\n### Root Cause:\n- **Mutable Default Argument**: The original code (`bar=[]`) reused the same list across calls. Each call appended `\"baz\"`, making the list grow with each invocation.\n\n### Minimal Fix:\nChange the default argument to `None` and initialize it inside the function to ensure a new list is created for each call:\n```python\ndef foo(bar=None):\n    if bar is None:\n        bar = []\n    bar.append(\"baz\")\n    return bar\n```\n\n### Why This Works:\n- **Lazy Initialization**: `bar` is only assigned a new list when `None` is passed, avoiding shared state between calls.\n- **Isolation**: Each call to `foo()` now operates on its own list, preventing unintended mutations.",
+      "usage_source": "api_usage"
+    },
+    {
+      "name": "graph_guided",
+      "prompt_tokens": 735,
+      "completion_tokens": 1220,
+      "total_tokens": 1955,
+      "estimated_prompt_tokens": 315,
+      "diagnosis_success": true,
+      "fix_success": true,
+      "success": true,
+      "success_criteria": [
+        "diagnosis_terms_found=['mutable default', 'default argument', 'shared', 'same list', 'function definition time']",
+        "fix_terms_found=['bar=none', 'is none', 'bar = []', 'new list', 'fresh list']",
+        "requires mutable/default/shared-list diagnosis and None-sentinel fix"
+      ],
+      "response_preview": "The function `foo()` returns a growing list because the original code used a mutable default argument (`bar=[]`), which is evaluated once at function definition time. Subsequent calls reused and mutated the same list. The minimal fix is to replace the mutable default with `None` and initialize a new list inside the function:\n\n```python\ndef foo(bar=None):\n    if bar is None:\n        bar = []\n    bar.append(\"baz\")\n    return bar\n```\n\n**Root Cause:**  \nMutable default arguments (like `list`) are shared across all calls, leading to unintended side effects.\n\n**Fix:**  \nUse `None` as the default and initialize a new list inside the function to ensure each call operates on a fresh list. This prevents the list from growing across calls.",
+      "usage_source": "api_usage"
+    }
+  ],
+  "comparison": {
+    "basis": "total_tokens_if_available_else_estimated_prompt_tokens",
+    "naive_tokens": 4275,
+    "graph_guided_tokens": 1955,
+    "reduction": 2.19
+  }
+}

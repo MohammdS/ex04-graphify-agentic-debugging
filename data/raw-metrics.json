@@ -1,0 +1,23 @@
+{
+  "selected_repository": "andela/buggy-python",
+  "extraction_date": "2026-06-17",
+  "source_files_count": 5,
+  "source_lines": 152,
+  "source_words": 396,
+  "source_characters": 3900,
+  "graph_nodes": 19,
+  "graph_edges": 31,
+  "graph_communities": 4,
+  "graphify_extraction": {
+    "command": "python -m graphify extract src --out . --no-cluster",
+    "cluster_command": "python -m graphify cluster-only . --graph graphify-out\\graph.json --no-label --no-viz",
+    "semantic_llm_tokens": {
+      "input": 0,
+      "output": 0
+    }
+  },
+  "verification": {
+    "command": "python -m pytest -q",
+    "result": "3 passed"
+  }
+}
