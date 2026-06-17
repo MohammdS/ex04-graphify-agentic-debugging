@@ -142,25 +142,21 @@ Diagram artifacts:
 
 ## Obsidian Screenshots
 
-The images below are placeholders. Replace them with real Obsidian screenshots
-after opening the `obsidian/` folder as a vault.
+The screenshot below was captured after opening the `obsidian/` folder as a
+vault.
 
-![Obsidian vault index placeholder](assets/screenshots/obsidian-index.svg)
+![Obsidian vault index](assets/screenshots/obsidian-index.png)
 
-The vault index should show the linked note structure: `hot`, `architecture`,
+The vault index shows the linked note structure: `hot`, `architecture`,
 `oop`, `bug-investigation`, `agent-workflow`, `token-efficiency`, and
 `before-after`. This demonstrates that the reverse-engineering evidence is
 navigable as an Obsidian knowledge base rather than isolated Markdown files.
 
-![Obsidian architecture note placeholder](assets/screenshots/obsidian-architecture.svg)
-
-The architecture screenshot should show the Mermaid block diagram from
+The architecture note contains the Mermaid block diagram from
 `obsidian/architecture.md`, connecting the extracted package, Graphify graph,
 LangGraph workflow, tests, reports, and vault notes.
 
-![Obsidian token note placeholder](assets/screenshots/obsidian-token-efficiency.svg)
-
-The token-efficiency screenshot should show the measured local-model comparison:
+The token-efficiency note shows the measured local-model comparison:
 naive full-context prompting versus Graphify-guided prompting, including average
 tokens and success rates.
 
