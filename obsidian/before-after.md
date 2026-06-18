@@ -1,8 +1,10 @@
-# Broken Code and Suggested Fix
+# Broken Code and Applied Fix
 
-## Broken Code
+## Before (preserved snapshot)
 
-The repository intentionally preserves the mutable default list bug:
+The original repository shipped the mutable default list bug. This snapshot is
+preserved in `data/original-bug-context.json` and is what the agent and the token
+experiment diagnose against:
 
 ```python
 def foo(bar=[]):
@@ -17,9 +19,9 @@ foo()  # ["baz"]
 foo()  # ["baz", "baz"]
 ```
 
-## Suggested Fix
+## After (applied in source)
 
-The suggested implementation uses `None` as the default sentinel:
+The fix is applied in `src/buggy_python/foobar.py` using `None` as the sentinel:
 
 ```python
 def foo(bar=None):
@@ -29,9 +31,15 @@ def foo(bar=None):
     return bar
 ```
 
-Verification keeps the bug test as expected-failing:
+The before/after is provable from version control: the "before" lives in
+`data/original-bug-context.json` and in the git history; the "after" is the
+current `src/buggy_python/foobar.py`.
+
+## Verification
+
+The regression test is no longer expected-failing — it now passes:
 
 ```text
 python -m pytest -q
-2 passed, 1 xfailed
+3 passed
 ```

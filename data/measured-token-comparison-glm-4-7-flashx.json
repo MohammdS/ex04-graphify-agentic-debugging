@@ -1,0 +1,385 @@
+{
+  "model": "glm-4.7-flashx",
+  "base_url": "https://api.z.ai/api/paas/v4/",
+  "results": [
+    {
+      "iteration": 1,
+      "name": "naive_full_context",
+      "prompt_tokens": 1672,
+      "completion_tokens": 996,
+      "total_tokens": 2668,
+      "estimated_prompt_tokens": 650,
+      "diagnosis_success": true,
+      "fix_success": true,
+      "success": true,
+      "success_criteria": [
+        "diagnosis_terms_found=['mutable default', 'default argument', 'shared', 'same list']",
+        "fix_terms_found=['bar=none', 'is none', 'bar = []']",
+        "requires mutable/default/shared-list diagnosis and None-sentinel fix"
+      ],
+      "response_preview": "**Diagnosis**\n\nThe function `foo` in `src/buggy_python/foobar.py` uses a **mutable default argument** (`bar=[]`). In Python, default argument values are evaluated only once when the function is defined, not every time the function is called. Consequently, the same list object is reused across all invocations. The first call appends `\"baz\"` to this shared list; subsequent calls append to the *existing* list, causing it to grow indefinitely.\n\n**Proposed Patch**\n\n```python\ndef foo(bar=None):\n    if bar is None:\n        bar = []\n    bar.append(\"baz\")\n    return bar\n```",
+      "usage_source": "api_usage"
+    },
+    {
+      "iteration": 1,
+      "name": "graph_guided",
+      "prompt_tokens": 554,
+      "completion_tokens": 744,
+      "total_tokens": 1298,
+      "estimated_prompt_tokens": 226,
+      "diagnosis_success": true,
+      "fix_success": true,
+      "success": true,
+      "success_criteria": [
+        "diagnosis_terms_found=['mutable default', 'default argument', 'shared', 'same list']",
+        "fix_terms_found=['bar=none', 'is none', 'bar = []']",
+        "requires mutable/default/shared-list diagnosis and None-sentinel fix"
+      ],
+      "response_preview": "**Diagnosis**\nThe function uses a mutable default argument (`bar=[]`). In Python, default arguments are evaluated only once when the function is defined. The same list object is shared across all calls; appending to it modifies the persistent object, causing accumulation.\n\n**Proposed Patch**\n```python\ndef foo(bar=None):\n    if bar is None:\n        bar = []\n    bar.append(\"baz\")\n    return bar\n```",
+      "usage_source": "api_usage"
+    },
+    {
+      "iteration": 2,
+      "name": "naive_full_context",
+      "prompt_tokens": 1672,
+      "completion_tokens": 905,
+      "total_tokens": 2577,
+      "estimated_prompt_tokens": 650,
+      "diagnosis_success": true,
+      "fix_success": true,
+      "success": true,
+      "success_criteria": [
+        "diagnosis_terms_found=['mutable default', 'default argument', 'shared', 'same list']",
+        "fix_terms_found=['bar=none', 'is none', 'bar = []']",
+        "requires mutable/default/shared-list diagnosis and None-sentinel fix"
+      ],
+      "response_preview": "**Diagnosis**\nThe function `foo` in `src/buggy_python/foobar.py` uses a mutable default argument (`bar=[]`). In Python, default argument values are evaluated only once when the function is defined. Consequently, the same list object is shared across all calls to `foo` that omit the argument. Each call appends \"baz\" to this shared list, causing the list to grow with every invocation.\n\n**Proposed Patch**\nChange the default argument to `None` and initialize the list inside the function body.\n\n```python\ndef foo(bar=None):\n    if bar is None:\n        bar = []\n    bar.append(\"baz\")\n    return bar\n```",
+      "usage_source": "api_usage"
+    },
+    {
+      "iteration": 2,
+      "name": "graph_guided",
+      "prompt_tokens": 554,
+      "completion_tokens": 823,
+      "total_tokens": 1377,
+      "estimated_prompt_tokens": 226,
+      "diagnosis_success": true,
+      "fix_success": true,
+      "success": true,
+      "success_criteria": [
+        "diagnosis_terms_found=['mutable default', 'default argument', 'shared']",
+        "fix_terms_found=['bar=none', 'is none', 'bar = []']",
+        "requires mutable/default/shared-list diagnosis and None-sentinel fix"
+      ],
+      "response_preview": "**Diagnosis**\nThe function `foo` uses a mutable default argument (`bar=[]`). In Python, default argument values are evaluated only once when the function is defined, not every time it is called. The list object is created once and shared across all invocations. The `append` operation modifies this shared list, causing the returned list to accumulate elements on subsequent calls.\n\n**Proposed Patch**\n```python\ndef foo(bar=None):\n    if bar is None:\n        bar = []\n    bar.append(\"baz\")\n    return bar\n```",
+      "usage_source": "api_usage"
+    },
+    {
+      "iteration": 3,
+      "name": "naive_full_context",
+      "prompt_tokens": 1672,
+      "completion_tokens": 936,
+      "total_tokens": 2608,
+      "estimated_prompt_tokens": 650,
+      "diagnosis_success": true,
+      "fix_success": true,
+      "success": true,
+      "success_criteria": [
+        "diagnosis_terms_found=['mutable default', 'default argument', 'shared', 'same list']",
+        "fix_terms_found=['bar=none', 'is none', 'bar = []']",
+        "requires mutable/default/shared-list diagnosis and None-sentinel fix"
+      ],
+      "response_preview": "**Diagnosis**\nThe bug is located in `src/buggy_python/foobar.py`. The function `foo` uses a mutable default argument (`bar=[]`). In Python, default arguments are evaluated only once when the function is defined, not every time it is called. Consequently, the same list object is created once and reused for every call to `foo` that does not provide an argument. Each call appends `\"baz\"` to this shared list, causing it to grow indefinitely.\n\n**Proposed Patch**\nReplace the function definition to use `None` as the default value and initialize the list inside the function body.\n\n```python\ndef foo(bar=None):\n    if bar is None:\n        bar = []\n    bar.append(\"baz\")\n    return bar\n```",
+      "usage_source": "api_usage"
+    },
+    {
+      "iteration": 3,
+      "name": "graph_guided",
+      "prompt_tokens": 554,
+      "completion_tokens": 734,
+      "total_tokens": 1288,
+      "estimated_prompt_tokens": 226,
+      "diagnosis_success": true,
+      "fix_success": true,
+      "success": true,
+      "success_criteria": [
+        "diagnosis_terms_found=['default argument', 'shared']",
+        "fix_terms_found=['bar=none', 'is none', 'bar = []']",
+        "requires mutable/default/shared-list diagnosis and None-sentinel fix"
+      ],
+      "response_preview": "**Diagnosis**\nThe default argument `bar=[]` is evaluated only once when the function is defined, creating a single list object shared across all calls. Subsequent calls reuse this same object, causing `append` to accumulate data on every invocation.\n\n**Proposed Patch**\n```python\ndef foo(bar=None):\n    if bar is None:\n        bar = []\n    bar.append(\"baz\")\n    return bar\n```",
+      "usage_source": "api_usage"
+    },
+    {
+      "iteration": 4,
+      "name": "naive_full_context",
+      "prompt_tokens": 1672,
+      "completion_tokens": 1056,
+      "total_tokens": 2728,
+      "estimated_prompt_tokens": 650,
+      "diagnosis_success": true,
+      "fix_success": true,
+      "success": true,
+      "success_criteria": [
+        "diagnosis_terms_found=['mutable default', 'default argument', 'shared', 'same list']",
+        "fix_terms_found=['bar=none', 'is none', 'bar = []']",
+        "requires mutable/default/shared-list diagnosis and None-sentinel fix"
+      ],
+      "response_preview": "**Diagnosis**\n\nThe function `foo` in `foobar.py` uses a **mutable default argument** (`bar=[]`). In Python, default argument values are evaluated only once when the function is defined, not every time it is called. The empty list object is created and bound to the parameter `bar` at definition time. On subsequent calls to `foo()` without arguments, the same list object is reused. Consequently, `bar.append(\"baz\")` modifies the shared list across all calls, causing the return value to grow with each invocation.\n\n**Proposed Patch**\n\n```python\ndef foo(bar=None):\n    if bar is None:\n        bar = []\n    bar.append(\"baz\")\n    return bar\n```",
+      "usage_source": "api_usage"
+    },
+    {
+      "iteration": 4,
+      "name": "graph_guided",
+      "prompt_tokens": 554,
+      "completion_tokens": 835,
+      "total_tokens": 1389,
+      "estimated_prompt_tokens": 226,
+      "diagnosis_success": true,
+      "fix_success": true,
+      "success": true,
+      "success_criteria": [
+        "diagnosis_terms_found=['mutable default', 'default argument', 'shared', 'same list']",
+        "fix_terms_found=['bar=none', 'is none', 'bar = []']",
+        "requires mutable/default/shared-list diagnosis and None-sentinel fix"
+      ],
+      "response_preview": "**Diagnosis**\nThe function `foo` uses a mutable default argument (`bar=[]`). In Python, default argument values are evaluated only once when the function is defined, not every time it is called. Consequently, the same list object is shared across all invocations, and `append` operations accumulate data.\n\n**Proposed Patch**\n```python\ndef foo(bar=None):\n    if bar is None:\n        bar = []\n    bar.append(\"baz\")\n    return bar\n```",
+      "usage_source": "api_usage"
+    },
+    {
+      "iteration": 5,
+      "name": "naive_full_context",
+      "prompt_tokens": 1672,
+      "completion_tokens": 943,
+      "total_tokens": 2615,
+      "estimated_prompt_tokens": 650,
+      "diagnosis_success": true,
+      "fix_success": true,
+      "success": true,
+      "success_criteria": [
+        "diagnosis_terms_found=['mutable default', 'default argument', 'shared']",
+        "fix_terms_found=['bar=none', 'is none', 'bar = []']",
+        "requires mutable/default/shared-list diagnosis and None-sentinel fix"
+      ],
+      "response_preview": "### Diagnosis\n\nThe function `foo` in `src/buggy_python/foobar.py` uses a **mutable default argument** (`bar=[]`). In Python, default argument values are evaluated only once when the function is defined, not every time it is called. Consequently, the list object referenced by `bar` is shared across all invocations. The `append` operation modifies this shared list, causing it to accumulate data with each call.\n\n### Proposed Patch\n\nReplace the function definition in `src/buggy_python/foobar.py` with the following:\n\n```python\ndef foo(bar=None):\n    if bar is None:\n        bar = []\n    bar.append(\"baz\")\n    return bar\n```",
+      "usage_source": "api_usage"
+    },
+    {
+      "iteration": 5,
+      "name": "graph_guided",
+      "prompt_tokens": 554,
+      "completion_tokens": 808,
+      "total_tokens": 1362,
+      "estimated_prompt_tokens": 226,
+      "diagnosis_success": true,
+      "fix_success": true,
+      "success": true,
+      "success_criteria": [
+        "diagnosis_terms_found=['mutable default', 'default argument', 'shared', 'same list']",
+        "fix_terms_found=['bar=none', 'is none', 'bar = []']",
+        "requires mutable/default/shared-list diagnosis and None-sentinel fix"
+      ],
+      "response_preview": "**Diagnosis**\nThe function `foo` uses a mutable default argument (`bar=[]`). In Python, default argument values are evaluated once when the function is defined, not every time it is called. Consequently, the same list object is shared across all invocations. The `append` operation modifies this persistent list, causing it to grow with each call.\n\n**Proposed Patch**\n```python\ndef foo(bar=None):\n    if bar is None:\n        bar = []\n    bar.append(\"baz\")\n    return bar\n```",
+      "usage_source": "api_usage"
+    },
+    {
+      "iteration": 6,
+      "name": "naive_full_context",
+      "prompt_tokens": 1672,
+      "completion_tokens": 1032,
+      "total_tokens": 2704,
+      "estimated_prompt_tokens": 650,
+      "diagnosis_success": true,
+      "fix_success": true,
+      "success": true,
+      "success_criteria": [
+        "diagnosis_terms_found=['mutable default', 'default argument', 'shared', 'same list']",
+        "fix_terms_found=['bar=none', 'is none', 'bar = []', 'fresh list']",
+        "requires mutable/default/shared-list diagnosis and None-sentinel fix"
+      ],
+      "response_preview": "**Diagnosis**\n\nThe bug is caused by using a mutable default argument (`bar=[]`). In Python, default argument values are evaluated only once when the function is defined, not every time the function is called. Consequently, the same list object is shared across all invocations. The `append` operation modifies this shared list, causing subsequent calls to return the accumulated list instead of a fresh list.\n\n**Proposed Patch**\n\n```python\ndef foo(bar=None):\n    if bar is None:\n        bar = []\n    bar.append(\"baz\")\n    return bar\n```",
+      "usage_source": "api_usage"
+    },
+    {
+      "iteration": 6,
+      "name": "graph_guided",
+      "prompt_tokens": 554,
+      "completion_tokens": 923,
+      "total_tokens": 1477,
+      "estimated_prompt_tokens": 226,
+      "diagnosis_success": true,
+      "fix_success": true,
+      "success": true,
+      "success_criteria": [
+        "diagnosis_terms_found=['mutable default', 'default argument', 'shared']",
+        "fix_terms_found=['bar=none', 'is none', 'bar = []']",
+        "requires mutable/default/shared-list diagnosis and None-sentinel fix"
+      ],
+      "response_preview": "**Diagnosis**\nThe function `foo` uses a mutable default argument (`bar=[]`). In Python, default argument values are evaluated once when the function is defined, not every time it is called. The list object is created once and shared across all invocations. Consequently, the `append` operation modifies this shared list on every call, causing the returned list to grow indefinitely.\n\n**Proposed Patch**\n```python\ndef foo(bar=None):\n    if bar is None:\n        bar = []\n    bar.append(\"baz\")\n    return bar\n```",
+      "usage_source": "api_usage"
+    },
+    {
+      "iteration": 7,
+      "name": "naive_full_context",
+      "prompt_tokens": 1672,
+      "completion_tokens": 1178,
+      "total_tokens": 2850,
+      "estimated_prompt_tokens": 650,
+      "diagnosis_success": true,
+      "fix_success": true,
+      "success": true,
+      "success_criteria": [
+        "diagnosis_terms_found=['mutable default', 'default argument', 'shared']",
+        "fix_terms_found=['bar=none', 'is none', 'bar = []']",
+        "requires mutable/default/shared-list diagnosis and None-sentinel fix"
+      ],
+      "response_preview": "**Diagnosis**\n\nThe function `foo` in `foobar.py` uses a mutable default argument (`bar=[]`). In Python, default arguments are evaluated only once when the function is defined, not each time it is called. This creates a single list object shared across all invocations. When `foo()` is called repeatedly without arguments, the list persists, and `append` adds \"baz\" to the existing list on every call, causing it to grow.\n\n**Proposed Patch**\n\n```python\ndef foo(bar=None):\n    if bar is None:\n        bar = []\n    bar.append(\"baz\")\n    return bar\n```",
+      "usage_source": "api_usage"
+    },
+    {
+      "iteration": 7,
+      "name": "graph_guided",
+      "prompt_tokens": 554,
+      "completion_tokens": 811,
+      "total_tokens": 1365,
+      "estimated_prompt_tokens": 226,
+      "diagnosis_success": true,
+      "fix_success": true,
+      "success": true,
+      "success_criteria": [
+        "diagnosis_terms_found=['default argument', 'shared']",
+        "fix_terms_found=['bar=none', 'is none', 'bar = []']",
+        "requires mutable/default/shared-list diagnosis and None-sentinel fix"
+      ],
+      "response_preview": "**Diagnosis**\nThe default argument `bar=[]` is a mutable object (a list) that is evaluated only once when the function is defined. All calls to `foo()` share this single list instance. Consequently, the `append` operation modifies the shared list, causing the returned list to grow with each invocation.\n\n**Proposed Patch**\n```python\ndef foo(bar=None):\n    if bar is None:\n        bar = []\n    bar.append(\"baz\")\n    return bar\n```",
+      "usage_source": "api_usage"
+    },
+    {
+      "iteration": 8,
+      "name": "naive_full_context",
+      "prompt_tokens": 1672,
+      "completion_tokens": 779,
+      "total_tokens": 2451,
+      "estimated_prompt_tokens": 650,
+      "diagnosis_success": true,
+      "fix_success": true,
+      "success": true,
+      "success_criteria": [
+        "diagnosis_terms_found=['mutable default', 'default argument', 'shared', 'same list']",
+        "fix_terms_found=['bar=none', 'is none', 'bar = []']",
+        "requires mutable/default/shared-list diagnosis and None-sentinel fix"
+      ],
+      "response_preview": "**Diagnosis**\nThe function `foo` uses a mutable default argument (`bar=[]`). In Python, default argument values are evaluated only once when the function is defined, not every time it is called. Consequently, the same list object is reused across all calls that omit the argument. Each call appends to this shared list, causing it to grow indefinitely.\n\n**Proposed Patch**\n```python\ndef foo(bar=None):\n    if bar is None:\n        bar = []\n    bar.append(\"baz\")\n    return bar\n```",
+      "usage_source": "api_usage"
+    },
+    {
+      "iteration": 8,
+      "name": "graph_guided",
+      "prompt_tokens": 554,
+      "completion_tokens": 922,
+      "total_tokens": 1476,
+      "estimated_prompt_tokens": 226,
+      "diagnosis_success": true,
+      "fix_success": true,
+      "success": true,
+      "success_criteria": [
+        "diagnosis_terms_found=['mutable default', 'default argument', 'shared', 'same list']",
+        "fix_terms_found=['bar=none', 'is none', 'bar = []']",
+        "requires mutable/default/shared-list diagnosis and None-sentinel fix"
+      ],
+      "response_preview": "**Diagnosis**\nThe function `foo` uses a mutable default argument (`bar=[]`). In Python, default argument values are evaluated once when the function is defined, not every time it is called. Consequently, the same list object is shared across all invocations that omit the argument. The `append` operation modifies this shared list, causing it to accumulate data on subsequent calls.\n\n**Proposed Patch**\n```python\ndef foo(bar=None):\n    if bar is None:\n        bar = []\n    bar.append(\"baz\")\n    return bar\n```",
+      "usage_source": "api_usage"
+    },
+    {
+      "iteration": 9,
+      "name": "naive_full_context",
+      "prompt_tokens": 1672,
+      "completion_tokens": 929,
+      "total_tokens": 2601,
+      "estimated_prompt_tokens": 650,
+      "diagnosis_success": true,
+      "fix_success": true,
+      "success": true,
+      "success_criteria": [
+        "diagnosis_terms_found=['mutable default', 'default argument', 'shared', 'same list']",
+        "fix_terms_found=['bar=none', 'is none', 'bar = []']",
+        "requires mutable/default/shared-list diagnosis and None-sentinel fix"
+      ],
+      "response_preview": "### Diagnosis\n\nThe function `foo` uses a **mutable default argument** (`bar=[]`). In Python, default argument values are evaluated **once** when the function is defined, not every time the function is called. Consequently, the same list object is shared across all invocations that omit the argument. Each call appends `\"baz\"` to this persistent list, causing the return value to grow with every subsequent call.\n\n### Proposed Patch\n\n```python\ndef foo(bar=None):\n    if bar is None:\n        bar = []\n    bar.append(\"baz\")\n    return bar\n```",
+      "usage_source": "api_usage"
+    },
+    {
+      "iteration": 9,
+      "name": "graph_guided",
+      "prompt_tokens": 554,
+      "completion_tokens": 839,
+      "total_tokens": 1393,
+      "estimated_prompt_tokens": 226,
+      "diagnosis_success": true,
+      "fix_success": true,
+      "success": true,
+      "success_criteria": [
+        "diagnosis_terms_found=['mutable default', 'default argument', 'shared', 'same list']",
+        "fix_terms_found=['bar=none', 'is none', 'bar = []']",
+        "requires mutable/default/shared-list diagnosis and None-sentinel fix"
+      ],
+      "response_preview": "**Diagnosis**\nThe function `foo` uses a mutable default argument (`bar=[]`). In Python, default arguments are evaluated only once when the function is defined, not every time it is called. Consequently, the same list object persists across all invocations. When `bar.append(\"baz\")` is executed, it modifies this shared list, causing subsequent calls to return the growing list.\n\n**Proposed Patch**\n```python\ndef foo(bar=None):\n    if bar is None:\n        bar = []\n    bar.append(\"baz\")\n    return bar\n```",
+      "usage_source": "api_usage"
+    },
+    {
+      "iteration": 10,
+      "name": "naive_full_context",
+      "prompt_tokens": 1672,
+      "completion_tokens": 1125,
+      "total_tokens": 2797,
+      "estimated_prompt_tokens": 650,
+      "diagnosis_success": true,
+      "fix_success": true,
+      "success": true,
+      "success_criteria": [
+        "diagnosis_terms_found=['mutable default', 'default argument', 'shared']",
+        "fix_terms_found=['bar=none', 'is none', 'bar = []', 'fresh list']",
+        "requires mutable/default/shared-list diagnosis and None-sentinel fix"
+      ],
+      "response_preview": "**Diagnosis**\n\nThe function `foo` uses a **mutable default argument** (`bar=[]`). In Python, default argument values are evaluated only once when the function is defined, not every time the function is called. This creates a shared list instance in memory that persists across all calls to `foo`. When `bar.append(\"baz\")` is executed, it modifies this shared list. Subsequent calls append to the already modified list, causing it to grow.\n\n**Proposed Patch**\n\nChange the default argument to `None` and initialize the list inside the function body to ensure a fresh list is created for each call.\n\n```python\ndef foo(bar=None):\n    if bar is None:\n        bar = []\n    bar.append(\"baz\")\n    return bar\n```",
+      "usage_source": "api_usage"
+    },
+    {
+      "iteration": 10,
+      "name": "graph_guided",
+      "prompt_tokens": 554,
+      "completion_tokens": 829,
+      "total_tokens": 1383,
+      "estimated_prompt_tokens": 226,
+      "diagnosis_success": true,
+      "fix_success": true,
+      "success": true,
+      "success_criteria": [
+        "diagnosis_terms_found=['mutable default', 'default argument', 'shared', 'same list']",
+        "fix_terms_found=['bar=none', 'is none', 'bar = []']",
+        "requires mutable/default/shared-list diagnosis and None-sentinel fix"
+      ],
+      "response_preview": "**Diagnosis**\nThe function uses a mutable default argument (`bar=[]`). In Python, default arguments are evaluated only once when the function is defined, not every time it is called. Consequently, the same list object persists across all invocations. When `bar.append(\"baz\")` executes, it modifies this shared list, causing subsequent calls to return the accumulated data.\n\n**Proposed Patch**\n```python\ndef foo(bar=None):\n    if bar is None:\n        bar = []\n    bar.append(\"baz\")\n    return bar\n```",
+      "usage_source": "api_usage"
+    }
+  ],
+  "averages": {
+    "runs": 10,
+    "basis": "average_total_tokens_if_available_else_estimated_prompt_tokens",
+    "naive": {
+      "prompt_tokens": 1672.0,
+      "completion_tokens": 987.9,
+      "total_tokens": 2659.9,
+      "basis_tokens": 2659.9,
+      "success_rate": 1.0
+    },
+    "graph_guided": {
+      "prompt_tokens": 554.0,
+      "completion_tokens": 826.8,
+      "total_tokens": 1380.8,
+      "basis_tokens": 1380.8,
+      "success_rate": 1.0
+    },
+    "reduction": 1.93
+  }
+}

@@ -5,3 +5,6 @@ __pycache__/
 venv/
 .env
 obsidian/.obsidian/
+.DS_Store
+.coverage
+.ruff_cache/

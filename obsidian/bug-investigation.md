@@ -2,7 +2,8 @@
 
 ## Symptom
 
-The original `foo()` function returned a list that grew across repeated calls:
+The original `foo()` function (preserved in `data/original-bug-context.json`)
+returned a list that grew across repeated calls:
 
 ```python
 def foo(bar=[]):
@@ -20,7 +21,7 @@ should return `["baz"]`.
 3. Confirm the expected behavior from `data/original-bug-context.json`.
 4. Confirm that the only package-level impact is the public re-export.
 5. Inspect `src/buggy_python/foobar.py`.
-6. Suggest the `None` sentinel patch without modifying source.
+6. Apply the `None` sentinel patch in `src/buggy_python/foobar.py`.
 
 ## Root Cause
 
@@ -28,9 +29,9 @@ Python evaluates default argument values once when the function is defined. A
 mutable default list is shared across calls, so `foo()` reused and mutated the
 same list.
 
-## Suggested Fix
+## Applied Fix
 
-`foo(bar=None)` should create a fresh list when no caller-provided list exists:
+`foo(bar=None)` creates a fresh list when no caller-provided list exists:
 
 ```python
 if bar is None:

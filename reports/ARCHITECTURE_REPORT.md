@@ -30,3 +30,9 @@ allows a narrow suggested patch and a focused regression test.
 - Block diagram: `artifacts/architecture-diagram.mmd`
 - Class/module diagram: `artifacts/oop-diagram.mmd`
 - Investigation flow: `artifacts/investigation-flow.mmd`
+
+## Extension: Suspect Ranking
+
+`agent/rank_suspects.py` ranks graph nodes by degree centrality plus proximity to
+a seed node, so the agent inspects the most likely bug locations first. Output is
+`reports/SUSPECT_RANKING.md`.

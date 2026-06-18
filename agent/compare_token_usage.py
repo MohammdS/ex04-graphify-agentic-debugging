@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
@@ -21,8 +22,15 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 GRAPH_PATH = ROOT / "data" / "graph.json"
+BUG_CONTEXT_PATH = ROOT / "data" / "original-bug-context.json"
 OUTPUT_JSON = ROOT / "data" / "measured-token-comparison.json"
 OUTPUT_MD = ROOT / "reports" / "MEASURED_TOKEN_COMPARISON.md"
+
+
+def buggy_foobar_source() -> str:
+    """Return the preserved original buggy foobar.py source for the experiment."""
+    data = json.loads(BUG_CONTEXT_PATH.read_text(encoding="utf-8"))
+    return data["original_source"]
 
 
 @dataclass
@@ -45,6 +53,11 @@ def estimate_tokens(text: str) -> int:
     """Simple fallback estimate when a local server omits usage accounting."""
 
     return max(1, round(len(text.split()) * 1.33))
+
+
+def _slug(model: str) -> str:
+    """Turn a model name into a filesystem-safe slug for output filenames."""
+    return re.sub(r"[^a-z0-9]+", "-", model.lower()).strip("-")
 
 
 def read_text_files(root: Path) -> dict[str, str]:
@@ -73,6 +86,12 @@ def graph_context(target_label: str) -> dict[str, Any]:
 
 
 def build_naive_prompt(question: str) -> str:
+    source_files = read_text_files(ROOT / "src")
+    foobar_key = next(
+        (key for key in source_files if key.endswith("foobar.py")),
+        "src/buggy_python/foobar.py",
+    )
+    source_files[foobar_key] = buggy_foobar_source()
     return json.dumps(
         {
             "task": question,
@@ -81,7 +100,7 @@ def build_naive_prompt(question: str) -> str:
                 "identify the bug, explain the root cause, and suggest a minimal fix. "
                 "Do not modify files; return only the diagnosis and proposed patch."
             ),
-            "source_files": read_text_files(ROOT / "src"),
+            "source_files": source_files,
             "tests": read_text_files(ROOT / "tests"),
         },
         indent=2,
@@ -100,9 +119,7 @@ def build_graph_prompt(question: str, target_label: str) -> str:
             ),
             "graph_context": graph_context(target_label),
             "target_source": {
-                "src/buggy_python/foobar.py": (
-                    ROOT / "src" / "buggy_python" / "foobar.py"
-                ).read_text(encoding="utf-8")
+                "src/buggy_python/foobar.py": buggy_foobar_source()
             },
         },
         indent=2,
@@ -184,7 +201,9 @@ def success_rate(results: list[RunResult]) -> float:
     return round(sum(1 for result in results if result.success) / len(results), 2)
 
 
-def write_outputs(results: list[RunResult], model: str, base_url: str | None) -> None:
+def write_outputs(
+    results: list[RunResult], model: str, base_url: str | None
+) -> tuple[Path, Path]:
     naive_results = [result for result in results if result.name == "naive_full_context"]
     graph_results = [result for result in results if result.name == "graph_guided"]
     latest_naive = naive_results[-1]
@@ -223,7 +242,9 @@ def write_outputs(results: list[RunResult], model: str, base_url: str | None) ->
             else None,
         },
     }
-    OUTPUT_JSON.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    out_json = ROOT / "data" / f"measured-token-comparison-{_slug(model)}.json"
+    out_md = ROOT / "reports" / f"MEASURED_TOKEN_COMPARISON_{_slug(model)}.md"
+    out_json.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
     markdown = f"""# Measured Token Comparison
 
@@ -266,7 +287,8 @@ Average reduction: `{payload["averages"]["reduction"]}x`
 {latest_graph.response_preview}
 ```
 """
-    OUTPUT_MD.write_text(markdown, encoding="utf-8")
+    out_md.write_text(markdown, encoding="utf-8")
+    return out_json, out_md
 
 
 def main() -> None:
@@ -330,9 +352,9 @@ def main() -> None:
                 iteration,
             )
         )
-    write_outputs(results, args.model, args.base_url)
-    print(f"Wrote {OUTPUT_JSON}")
-    print(f"Wrote {OUTPUT_MD}")
+    out_json, out_md = write_outputs(results, args.model, args.base_url)
+    print(f"Wrote {out_json}")
+    print(f"Wrote {out_md}")
 
 
 if __name__ == "__main__":

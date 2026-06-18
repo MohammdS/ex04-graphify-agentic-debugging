@@ -18,6 +18,7 @@ selected repository: `andela/buggy-python`.
 - Graph artifact: `data/graph.json`
 - Graph report: `reports/GRAPH_REPORT.md`
 - Bug report: `reports/BUG_REPORT.md`
-- Token report: `reports/MEASURED_TOKEN_COMPARISON.md`
+- Token report: `reports/MEASURED_TOKEN_COMPARISON.md` (gemma3:4b + glm side by side)
 - Architecture report: `reports/ARCHITECTURE_REPORT.md`
-- Verification command: `python -m pytest -q`
+- Suspect ranking (extension): `reports/SUSPECT_RANKING.md`
+- Verification command: `python -m pytest -q` (3 passed)

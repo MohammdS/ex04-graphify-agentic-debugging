@@ -24,6 +24,23 @@ BUG_CONTEXT_PATH = ROOT / "data" / "original-bug-context.json"
 PROMPT_DIR = ROOT / "agent" / "prompts"
 
 
+FALLBACK_ROOT_CAUSE = (
+    "The original implementation used foo(bar=[]), so Python created one list at "
+    "function definition time and reused it on every call."
+)
+FALLBACK_EVIDENCE = [
+    "Graphify places foo() in Community 1 with foobar.py and its default-argument rationale.",
+    "The only reverse impact edge from foo() is __init__.py importing it for public package use.",
+    "The failing behavior is state leakage across repeated foo() calls.",
+]
+FALLBACK_FIX_PLAN = [
+    "Replace the mutable default list with None.",
+    "Allocate a fresh list inside the function when no explicit list is supplied.",
+    "Keep explicit-list mutation behavior unchanged for callers that pass a list.",
+    "Verify with a repeated-call regression test.",
+]
+
+
 class DebugState(TypedDict, total=False):
     question: str
     target_node: str
@@ -113,6 +130,13 @@ def graph_reader(state: DebugState) -> DebugState:
     source_context = _source_context_for(target_nodes)
     graph_context_tokens = _estimate_tokens(json.dumps(target_nodes + neighbors))
     bug_brief = json.loads(BUG_CONTEXT_PATH.read_text(encoding="utf-8"))
+    original_source = bug_brief.get("original_source")
+    if original_source:
+        foobar_key = next(
+            (key for key in source_context if key.endswith("foobar.py")),
+            "src/buggy_python/foobar.py",
+        )
+        source_context[foobar_key] = original_source
     source_context_tokens = _estimate_tokens(json.dumps(source_context))
     bug_context_tokens = _estimate_tokens(json.dumps(bug_brief))
     state["graph_summary"] = {
@@ -156,16 +180,11 @@ def bug_investigator(state: DebugState) -> DebugState:
         state["llm_used"] = True
         state["llm_usage"] = _merge_usage(state.get("llm_usage", {}), usage)
         state["llm_outputs"]["bug_investigator"] = llm_output
-
-    state["evidence"] = [
-        "Graphify places foo() in Community 1 with foobar.py and its default-argument rationale.",
-        "The only reverse impact edge from foo() is __init__.py importing it for public package use.",
-        "The failing behavior is state leakage across repeated foo() calls.",
-    ]
-    state["root_cause"] = (
-        "The original implementation used foo(bar=[]), so Python created one list at "
-        "function definition time and reused it on every call."
-    )
+        state["root_cause"] = llm_output
+        state["evidence"] = ["LLM analysis (graph-guided context):", llm_output]
+    else:
+        state["root_cause"] = FALLBACK_ROOT_CAUSE
+        state["evidence"] = list(FALLBACK_EVIDENCE)
     return state
 
 
@@ -185,13 +204,9 @@ def fix_planner(state: DebugState) -> DebugState:
         state["llm_used"] = True
         state["llm_usage"] = _merge_usage(state.get("llm_usage", {}), usage)
         state["llm_outputs"]["fix_planner"] = llm_output
-
-    state["fix_plan"] = [
-        "Replace the mutable default list with None.",
-        "Allocate a fresh list inside the function when no explicit list is supplied.",
-        "Keep explicit-list mutation behavior unchanged for callers that pass a list.",
-        "Verify with a repeated-call regression test.",
-    ]
+        state["fix_plan"] = [llm_output]
+    else:
+        state["fix_plan"] = list(FALLBACK_FIX_PLAN)
     return state
 
 
