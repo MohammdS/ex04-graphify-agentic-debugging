@@ -8,6 +8,21 @@ model. When no key is available (or the call fails), the workflow uses the
 from __future__ import annotations
 
 import os
+from pathlib import Path
+
+from gatekeeper import ApiGatekeeper, RateLimitConfig
+
+ROOT = Path(__file__).resolve().parents[1]
+
+_gatekeeper: ApiGatekeeper | None = None
+
+
+def _get_gatekeeper() -> ApiGatekeeper:
+    global _gatekeeper
+    if _gatekeeper is None:
+        config = RateLimitConfig.from_file(ROOT / "config" / "rate_limits.json")
+        _gatekeeper = ApiGatekeeper(config)
+    return _gatekeeper
 
 
 FALLBACK_ROOT_CAUSE = (
@@ -38,7 +53,8 @@ def call_llm(system_prompt: str, user_prompt: str) -> tuple[str | None, dict[str
 
         model = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
         client = OpenAI(base_url=os.environ.get("OPENAI_BASE_URL") or None)
-        response = client.chat.completions.create(
+        response = _get_gatekeeper().execute(
+            client.chat.completions.create,
             model=model,
             temperature=0,
             messages=[

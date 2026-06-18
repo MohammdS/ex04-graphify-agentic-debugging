@@ -67,6 +67,7 @@ here and revisited in the reports and the Obsidian vault
 README.md
 requirements.txt
 pyproject.toml
+config/
 src/buggy_python/
 tests/
 agent/
@@ -151,6 +152,20 @@ project uses GLM `glm-4.7-flashx` via the z.ai OpenAI-compatible endpoint; see
 present, the workflow marks `llm_used: false` and uses hardcoded fallbacks so the
 repo can still be verified offline.
 
+### API Gatekeeper
+
+Both LLM call sites (`agent/llm_support.py`'s `call_llm` and
+`agent/compare_token_usage.py`'s `call_model`) route through
+`agent/gatekeeper.py`'s `ApiGatekeeper` instead of calling the OpenAI client
+directly. The gatekeeper enforces per-minute/per-hour rate limits and a
+concurrency cap, queues calls (FIFO, with a `QueueFullError` backpressure
+rejection once the queue is at max depth) instead of dropping them, retries
+transient failures with a configurable delay, and logs every attempt via the
+standard `logging` module. Limits are never hardcoded — they are loaded from
+`config/rate_limits.json` (schema: `version`, `services.<name>.{requests_per_minute,
+requests_per_hour, concurrent_max, retry_after_seconds, max_retries,
+max_queue_depth}`).
+
 ## Token Efficiency
 
 The committed token-efficiency evidence is the combined two-model comparison in
@@ -167,10 +182,10 @@ rounds, and quality (success rate) of reaching the root cause and fix.
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | `gemma3:4b` (local, 10 runs) | Naive full-context | 1914.0 | 790.0 | 2704.0 | 6 | 1 | 0.9 |
 | `gemma3:4b` (local, 10 runs) | Graphify-guided | 683.0 | 558.2 | 1241.2 | 1 | 1 | 1.0 |
-| `glm-4.7-flashx` (z.ai, 10 runs) | Naive full-context | 1672.0 | 1024.3 | 2696.3 | 6 | 1 | 1.0 |
-| `glm-4.7-flashx` (z.ai, 10 runs) | Graphify-guided | 554.0 | 788.3 | 1342.3 | 1 | 1 | 0.9 |
+| `glm-4.7-flashx` (z.ai, 10 runs) | Naive full-context | 1672.0 | 954.7 | 2626.7 | 6 | 1 | 1.0 |
+| `glm-4.7-flashx` (z.ai, 10 runs) | Graphify-guided | 554.0 | 809.4 | 1363.4 | 1 | 1 | 1.0 |
 
-Average total-token reduction: `gemma3:4b` **2.18x**, `glm-4.7-flashx` **2.01x**.
+Average total-token reduction: `gemma3:4b` **2.18x**, `glm-4.7-flashx` **1.93x**.
 The naive run reads 6 files (`src/buggy_python/{__init__.py, foobar.py, io.py,
 loans.json, loop.py}` + `tests/test_buggy_python.py`); the graph-guided run reads
 1 file (`foobar.py`) plus the `foo()` graph neighborhood. Both modes diagnose in a

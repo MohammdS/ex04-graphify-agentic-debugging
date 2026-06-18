@@ -14,15 +14,30 @@ from __future__ import annotations
 
 import argparse
 import os
+from pathlib import Path
 from typing import Any
 
+from gatekeeper import ApiGatekeeper, RateLimitConfig
 from token_prompts import build_graph_prompt, build_naive_prompt, estimate_tokens
 from token_report import write_outputs
 from token_scoring import RunResult, evaluate_response
 
+ROOT = Path(__file__).resolve().parents[1]
+
+_gatekeeper: ApiGatekeeper | None = None
+
+
+def _get_gatekeeper() -> ApiGatekeeper:
+    global _gatekeeper
+    if _gatekeeper is None:
+        config = RateLimitConfig.from_file(ROOT / "config" / "rate_limits.json")
+        _gatekeeper = ApiGatekeeper(config)
+    return _gatekeeper
+
 
 def call_model(client: Any, model: str, name: str, prompt: str, iteration: int) -> RunResult:
-    response = client.chat.completions.create(
+    response = _get_gatekeeper().execute(
+        client.chat.completions.create,
         model=model,
         temperature=0,
         messages=[
