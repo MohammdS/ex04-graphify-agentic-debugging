@@ -67,6 +67,10 @@ def build_naive_prompt(question: str) -> str:
         "src/buggy_python/foobar.py",
     )
     source_files[foobar_key] = buggy_foobar_source()
+    # Only the regression test for the package under investigation belongs in
+    # the naive baseline. The rest of tests/ exercises this submission's own
+    # agent/gatekeeper tooling, not the buggy_python codebase being diagnosed.
+    test_path = ROOT / "tests" / "test_buggy_python.py"
     return json.dumps(
         {
             "task": question,
@@ -76,7 +80,9 @@ def build_naive_prompt(question: str) -> str:
                 "Do not modify files; return only the diagnosis and proposed patch."
             ),
             "source_files": source_files,
-            "tests": read_text_files(ROOT / "tests"),
+            "tests": {
+                str(test_path.relative_to(ROOT)): test_path.read_text(encoding="utf-8")
+            },
         },
         indent=2,
     )

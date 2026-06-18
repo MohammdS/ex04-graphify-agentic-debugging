@@ -10,17 +10,17 @@ Runs: `10`
 
 | Run | Avg prompt tokens | Avg completion tokens | Avg total tokens | Success rate |
 | --- | ---: | ---: | ---: | ---: |
-| Naive full-context | 1672.0 | 987.4 | 2659.4 | 1.0 |
-| Graph-guided | 554.0 | 809.3 | 1363.3 | 1.0 |
+| Naive full-context | 1672.0 | 954.7 | 2626.7 | 1.0 |
+| Graph-guided | 554.0 | 809.4 | 1363.4 | 1.0 |
 
-Average reduction: `1.95x`
+Average reduction: `1.93x`
 
 ## Latest Run
 
 | Run | Prompt tokens | Completion tokens | Total tokens | Estimated prompt tokens | Usage source |
 | --- | ---: | ---: | ---: | ---: | --- |
-| Naive full-context | 1672 | 869 | 2541 | 650 | api_usage |
-| Graph-guided | 554 | 875 | 1429 | 226 | api_usage |
+| Naive full-context | 1672 | 776 | 2448 | 650 | api_usage |
+| Graph-guided | 554 | 782 | 1336 | 226 | api_usage |
 
 | Run | Diagnosis success | Fix success | Overall success |
 | --- | --- | --- | --- |
@@ -30,16 +30,10 @@ Average reduction: `1.95x`
 ## Naive Response Preview
 
 ```text
-### Diagnosis
+**Diagnosis**
+The function `foo` uses a mutable default argument (`bar=[]`). In Python, default argument values are evaluated only once when the function is defined, not each time the function is called. Consequently, the same list object is reused across all calls that omit the argument. On the first call, the list is empty, and `"baz"` is appended. On subsequent calls, the list still contains the previous `"baz"` entries, so another `"baz"` is appended, resulting in a growing list.
 
-The bug is caused by using a **mutable default argument** (`bar=[]`) in the function definition.
-
-In Python, default argument values are evaluated **once** when the function is defined, not every time the function is called. The list object created as the default value is stored in the function's attribute space. Consequently, every call to `foo()` appends to this shared list object, causing the return value to accumulate elements with each invocation.
-
-### Proposed Patch
-
-Replace the mutable default list with `None` and initialize a new list inside the function body if the argument is not provided.
-
+**Proposed Patch**
 ```python
 def foo(bar=None):
     if bar is None:
@@ -53,7 +47,7 @@ def foo(bar=None):
 
 ```text
 **Diagnosis**
-The default argument `bar=[]` is a mutable object evaluated only once when the function is defined. This shared list persists in memory across all calls. Each call appends to this existing list, causing it to grow.
+The function `foo` uses a mutable default argument (`bar=[]`). In Python, default arguments are evaluated only once when the function is defined, creating a single list object shared across all invocations. Each call modifies this shared list, causing it to accumulate elements ("baz") on every execution.
 
 **Proposed Patch**
 ```python

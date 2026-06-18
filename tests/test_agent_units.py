@@ -77,6 +77,34 @@ def _inject_fake_openai(monkeypatch, cls=FakeOpenAI):
     monkeypatch.setitem(sys.modules, "openai", module)
 
 
+class _FlakyOnceCompletions:
+    """create() raises once (a transient failure) then succeeds."""
+
+    def __init__(self):
+        self.calls = 0
+
+    def create(self, **kwargs):
+        self.calls += 1
+        if self.calls == 1:
+            raise RuntimeError("transient")
+        return _Resp()
+
+
+class FlakyOnceOpenAI:
+    def __init__(self, *args, **kwargs):
+        self.chat = types.SimpleNamespace(completions=_FlakyOnceCompletions())
+
+
+class _AlwaysFailingCompletions:
+    def create(self, **kwargs):
+        raise RuntimeError("permanently down")
+
+
+class AlwaysFailingOpenAI:
+    def __init__(self, *args, **kwargs):
+        self.chat = types.SimpleNamespace(completions=_AlwaysFailingCompletions())
+
+
 # --- token_scoring ----------------------------------------------------------
 
 def test_evaluate_response_success():
@@ -120,6 +148,15 @@ def test_graph_context_and_prompts():
     assert "source_files" in naive
     graph = json.loads(token_prompts.build_graph_prompt("q", "foo()"))
     assert "graph_context" in graph
+
+
+def test_build_naive_prompt_scopes_tests_to_buggy_python_only():
+    """The naive baseline must not balloon as this submission's own test
+    suite (agent/gatekeeper tests) grows -- it should only ever include the
+    regression test for the package actually under investigation."""
+    naive = json.loads(token_prompts.build_naive_prompt("q"))
+    assert list(naive["tests"].keys()) == ["tests/test_buggy_python.py"]
+    assert len(naive["source_files"]) == 5
 
 
 # --- suspect_ranking / suspect_report ---------------------------------------
@@ -179,6 +216,26 @@ def test_call_llm_exception_path(monkeypatch):
     assert usage == {}
 
 
+def test_call_llm_recovers_after_transient_failure(monkeypatch):
+    """The gatekeeper retries a transient failure, so call_llm now succeeds
+    where it would previously have fallen back on the first error."""
+    monkeypatch.setenv("OPENAI_API_KEY", "x")
+    monkeypatch.setattr(llm_support._get_gatekeeper(), "_sleep", lambda s: None)
+    _inject_fake_openai(monkeypatch, cls=FlakyOnceOpenAI)
+    content, usage = llm_support.call_llm("sys", "user")
+    assert content == GOOD_ANSWER
+    assert usage["total_tokens"] == 30
+
+
+def test_call_llm_falls_back_after_retries_exhausted(monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "x")
+    monkeypatch.setattr(llm_support._get_gatekeeper(), "_sleep", lambda s: None)
+    _inject_fake_openai(monkeypatch, cls=AlwaysFailingOpenAI)
+    content, usage = llm_support.call_llm("sys", "user")
+    assert content.startswith("LLM call failed")
+    assert usage == {}
+
+
 # --- debug_state ------------------------------------------------------------
 
 def test_debug_state_helpers():
@@ -233,6 +290,21 @@ def test_call_model_with_fake_client():
     assert res.success is True
     assert res.total_tokens == 30
     assert res.usage_source == "api_usage"
+
+
+def test_call_model_recovers_after_transient_failure(monkeypatch):
+    monkeypatch.setattr(compare_token_usage._get_gatekeeper(), "_sleep", lambda s: None)
+    client = FlakyOnceOpenAI()
+    res = compare_token_usage.call_model(client, "m", "graph_guided", "prompt", 1)
+    assert res.success is True
+    assert res.total_tokens == 30
+
+
+def test_call_model_propagates_after_retries_exhausted(monkeypatch):
+    monkeypatch.setattr(compare_token_usage._get_gatekeeper(), "_sleep", lambda s: None)
+    client = AlwaysFailingOpenAI()
+    with pytest.raises(RuntimeError, match="permanently down"):
+        compare_token_usage.call_model(client, "m", "graph_guided", "prompt", 1)
 
 
 def test_main_writes_outputs(monkeypatch):
