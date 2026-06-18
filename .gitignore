@@ -5,3 +5,9 @@ __pycache__/
 venv/
 .env
 obsidian/.obsidian/
+.DS_Store
+.coverage
+.ruff_cache/
+hw1.md
+hw2.md
+graphify-out/

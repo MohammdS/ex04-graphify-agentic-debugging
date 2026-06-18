@@ -45,9 +45,10 @@ Python default arguments are evaluated once at function definition time. Because
 the default value is a mutable list, every call without an explicit `bar` argument
 mutates the same list object.
 
-## Suggested Fix
+## Applied Fix
 
-Use `None` as a sentinel and allocate a new list per implicit call:
+The fix is applied in `src/buggy_python/foobar.py`: use `None` as a sentinel and
+allocate a new list per implicit call:
 
 ```python
 def foo(bar=None):
@@ -67,10 +68,11 @@ def test_foo_does_not_share_default_list_between_calls():
     assert foo() == ["baz"]
 ```
 
-The source is intentionally not modified in this submission. The regression test
-is marked expected-failure to document the bug:
+The fix is applied in source and the regression test now passes. The original
+buggy version is preserved in `data/original-bug-context.json` (and in git
+history) as the documented "before":
 
 ```text
 python -m pytest -q
-2 passed, 1 xfailed
+3 passed
 ```

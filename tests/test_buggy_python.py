@@ -22,8 +22,8 @@ def test_original_expected_outputs():
     assert average_paid_loans(json_file) == pytest.approx(2681.2593672727276)
 
 
-@pytest.mark.xfail(reason="Known bug: foo() uses a shared mutable default list.")
 def test_foo_does_not_share_default_list_between_calls():
+    # Regression test for the fixed mutable-default-argument bug.
     assert foo() == ["baz"]
     assert foo() == ["baz"]
 
