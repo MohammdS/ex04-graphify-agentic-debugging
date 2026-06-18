@@ -41,8 +41,8 @@ here and revisited in the reports and the Obsidian vault
 
 3. **How can the block and OOP schemas be extracted when the original docs are
    thin?** The Graphify communities and edges drive both: the architecture block
-   diagram (`artifacts/architecture-diagram.mmd`) maps module-to-module flow, and
-   the OOP/relationship diagram (`artifacts/oop-diagram.mmd`) captures the
+   diagram (`artifacts/architecture-diagram.md`) maps module-to-module flow, and
+   the OOP/relationship diagram (`artifacts/oop-diagram.md`) captures the
    module/function relationships, rather than relying on a directory listing.
 
 4. **How was the bug identified, what was the root cause, and what steps led
@@ -50,7 +50,7 @@ here and revisited in the reports and the Obsidian vault
    neighborhood (not a linear file read), surfacing `def foo(bar=[])`. Root cause:
    a mutable default argument evaluated once at definition time, so repeated
    implicit calls share one list. Fix: the `None`-sentinel form. See
-   `reports/BUG_REPORT.md` and `artifacts/investigation-flow.mmd`.
+   `reports/BUG_REPORT.md` and `artifacts/investigation-flow.md`.
 
 5. **What was the advantage of graph-guided navigation vs. linear reading, how
    did the agent save tokens, and what extensions would we add?** Graph-guidance
@@ -235,13 +235,13 @@ rise to the top, matching the manual investigation path.
 
 The Obsidian vault is under `obsidian/` and starts at `obsidian/index.md`. The
 two reverse-engineering schemas required by the assignment are embedded below;
-the source `.mmd` files are in `artifacts/`.
+the source `.md` files (with embedded Mermaid code blocks) are in `artifacts/`.
 
 ### Architecture Block Diagram
 
 System flow from the original repository through the extracted package, Graphify
 extraction, the LangGraph agent, and the Obsidian vault
-(`artifacts/architecture-diagram.mmd`):
+(`artifacts/architecture-diagram.md`):
 
 ```mermaid
 flowchart LR
@@ -264,7 +264,7 @@ flowchart LR
 The selected codebase is **procedural and defines no Python classes**, so this
 schema documents the package, its three modules, and the `LoanRecord` JSON data
 shape (with their public interfaces and `re-exports` / `reads` relationships)
-rather than inheritance hierarchies (`artifacts/oop-diagram.mmd`):
+rather than inheritance hierarchies (`artifacts/oop-diagram.md`):
 
 ```mermaid
 classDiagram
@@ -304,7 +304,7 @@ classDiagram
   IoModule --> LoanRecord : reads JSON records
 ```
 
-The investigation flow diagram is in `artifacts/investigation-flow.mmd`.
+The investigation flow diagram is in `artifacts/investigation-flow.md`.
 
 ## Obsidian Screenshots
 

@@ -22,9 +22,9 @@ See `reports/SUSPECT_RANKING.md`.
 ## 3. How were the block and OOP schemas extracted?
 
 Both schemas are derived from the Graphify communities and edges, not a folder
-listing: the architecture block diagram (`artifacts/architecture-diagram.mmd`)
+listing: the architecture block diagram (`artifacts/architecture-diagram.md`)
 for module-to-module flow, and the OOP/relationship diagram
-(`artifacts/oop-diagram.mmd`). See [[architecture]] and [[oop]].
+(`artifacts/oop-diagram.md`). See [[architecture]] and [[oop]].
 
 ## 4. How was the bug found, what was the root cause, what steps led there?
 

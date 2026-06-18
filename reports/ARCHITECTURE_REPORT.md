@@ -27,9 +27,9 @@ allows a narrow suggested patch and a focused regression test.
 
 ## Diagrams
 
-- Block diagram: `artifacts/architecture-diagram.mmd`
-- Class/module diagram: `artifacts/oop-diagram.mmd`
-- Investigation flow: `artifacts/investigation-flow.mmd`
+- Block diagram: `artifacts/architecture-diagram.md`
+- Class/module diagram: `artifacts/oop-diagram.md`
+- Investigation flow: `artifacts/investigation-flow.md`
 
 ## Extension: Suspect Ranking
 

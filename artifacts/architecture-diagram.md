@@ -1,3 +1,9 @@
+# Architecture Block Diagram
+
+System flow from the original repository through the extracted package, Graphify
+extraction, the LangGraph agent, and the Obsidian vault.
+
+```mermaid
 flowchart LR
   OriginalRepo["andela/buggy-python"] --> ExtractedPackage["src/buggy_python"]
   ExtractedPackage --> PublicAPI["__init__.py public API"]
@@ -11,4 +17,4 @@ flowchart LR
   GraphJson --> LangGraph["agent/workflow.py"]
   LangGraph --> Tests
   GraphJson --> Obsidian["obsidian vault and reports"]
-
+```

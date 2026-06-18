@@ -1,3 +1,9 @@
+# Investigation Flow Diagram
+
+Steps from the failing behavior to the verified fix, following the
+graph-guided investigation path rather than a linear file read.
+
+```mermaid
 flowchart TD
   Start["Failing behavior: foo() grows across calls"] --> GraphReader["Graph reader: query foo() node"]
   GraphReader --> HotNode["Hot node: src/buggy_python/foobar.py:L4"]
@@ -6,3 +12,4 @@ flowchart TD
   RootCause --> Patch["Suggest: bar=None then allocate []"]
   Patch --> Verify["python -m pytest -q"]
   Verify --> Result["2 passed, 1 xfailed"]
+```

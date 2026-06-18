@@ -1,3 +1,11 @@
+# OOP / Module Relationship Diagram
+
+The selected codebase is procedural and defines no Python classes, so this
+schema documents the package, its three modules, and the `LoanRecord` JSON
+data shape (with their public interfaces and `re-exports`/`reads`
+relationships) rather than inheritance hierarchies.
+
+```mermaid
 classDiagram
   class BuggyPythonPackage {
     <<package>>
@@ -33,3 +41,4 @@ classDiagram
   BuggyPythonPackage --> IoModule : re-exports
   BuggyPythonPackage --> LoopModule : re-exports
   IoModule --> LoanRecord : reads JSON records
+```
