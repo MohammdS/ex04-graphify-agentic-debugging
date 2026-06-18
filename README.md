@@ -311,6 +311,7 @@ The token-efficiency note shows the measured local-model comparison:
 naive full-context prompting versus Graphify-guided prompting, including average
 tokens and success rates.
 
+Graphify shows that the project has 19 code nodes and 31 relationships divided into 4 communities. The most central node is __init__.py, which acts as a hub connecting multiple modules. The blue community represents the loan-calculation logic, including calculate_paid_loans(), calculate_unpaid_loans(), average_paid_loans(), and _amounts_by_status(). The green community represents file reading / IO behavior around read_file(). The orange and red communities represent smaller independent logic areas such as foobar.py, foo(), loop.py, and lambda_array().
 <img width="1459" height="741" alt="Screenshot 2026-06-18 at 16 27 17" src="https://github.com/user-attachments/assets/9e68c51b-2db7-4dad-be4c-80b63d7df3aa" />
 
 <img width="1468" height="772" alt="Screenshot 2026-06-18 at 16 26 45" src="https://github.com/user-attachments/assets/32f78b8d-b46c-4778-98bd-4a10c8cb1147" />
