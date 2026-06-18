@@ -19,17 +19,10 @@ This rewards nodes that are both well-connected and close to the seed, so the se
 
 **Seed node:** `foo()`
 
-## Top 10 suspects
+## Top 3 suspects
 
 | Rank | Node | Degree | Degree centrality | Distance to seed | Suspect score |
 | ---: | --- | ---: | ---: | ---: | ---: |
 | 1 | `foo()` | 3 | 0.167 | 0 | 1.167 |
 | 2 | `__init__.py` | 9 | 0.500 | 1 | 1.000 |
 | 3 | `io.py` | 7 | 0.389 | 2 | 0.722 |
-| 4 | `foobar.py` | 3 | 0.167 | 1 | 0.667 |
-| 5 | `read_file()` | 5 | 0.278 | 2 | 0.611 |
-| 6 | `average_paid_loans()` | 4 | 0.222 | 2 | 0.556 |
-| 7 | `calculate_paid_loans()` | 4 | 0.222 | 2 | 0.556 |
-| 8 | `calculate_unpaid_loans()` | 4 | 0.222 | 2 | 0.556 |
-| 9 | `Return a list containing ``"baz"``.      This intentionally preserves the origin` | 1 | 0.056 | 1 | 0.556 |
-| 10 | `Any` | 5 | 0.278 | 3 | 0.528 |

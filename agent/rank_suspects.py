@@ -2,30 +2,21 @@
 
 This extension (assignment §5.6) consumes the node-link knowledge graph in
 ``data/graph.json`` and produces a ranked list of "suspect" nodes for a
-graph-guided debugging workflow.
+graph-guided debugging workflow, telling the agent which nodes to inspect first
+instead of reading files in arbitrary order. The ranked report is written to
+``reports/SUSPECT_RANKING.md``.
 
-The intuition: in a code/knowledge graph, a node is a strong place for an
-agent to start investigating a bug when it is BOTH
-
-  * highly connected (high degree centrality -> it touches a lot of the
-    system, so a defect there has wide blast radius), and
-  * close to a known seed of interest (short BFS distance -> it is in the
-    neighbourhood of where we already suspect the problem lives).
-
-By combining these two signals into a single suspect score and sorting,
-the script tells the agent which nodes to inspect first instead of reading
-files in arbitrary order. The output is written as a clean Markdown report
-to ``reports/SUSPECT_RANKING.md``.
-
+Scoring lives in ``suspect_ranking.py`` and rendering in ``suspect_report.py``.
 Pure standard library, fully local, no network access.
 """
 
 from __future__ import annotations
 
 import argparse
-import json
-from collections import defaultdict, deque
 from pathlib import Path
+
+from suspect_ranking import find_seed_id, load_graph, rank_suspects
+from suspect_report import build_markdown
 
 ROOT = Path(__file__).resolve().parents[1]
 GRAPH_PATH = ROOT / "data" / "graph.json"
@@ -33,161 +24,6 @@ OUTPUT_MD = ROOT / "reports" / "SUSPECT_RANKING.md"
 
 DEFAULT_SEED = "foo()"
 DEFAULT_TOP = 10
-
-
-def load_graph(path: Path) -> tuple[dict[str, str], dict[str, list[str]]]:
-    """Load the node-link graph and return (id -> label, undirected adjacency)."""
-    data = json.loads(path.read_text(encoding="utf-8"))
-
-    id_to_label: dict[str, str] = {}
-    for node in data["nodes"]:
-        id_to_label[node["id"]] = node["label"]
-
-    adjacency: dict[str, set[str]] = defaultdict(set)
-    for link in data["links"]:
-        source = link["source"]
-        target = link["target"]
-        # Treat every edge as undirected (add both directions).
-        adjacency[source].add(target)
-        adjacency[target].add(source)
-
-    # Ensure isolated nodes still appear with an empty neighbour set.
-    for node_id in id_to_label:
-        adjacency.setdefault(node_id, set())
-
-    # Convert sets to sorted lists for deterministic output.
-    adjacency_list = {node_id: sorted(neighbours) for node_id, neighbours in adjacency.items()}
-    return id_to_label, adjacency_list
-
-
-def bfs_distances(adjacency: dict[str, list[str]], start: str) -> dict[str, int]:
-    """Return BFS shortest-path distances (in hops) from ``start`` to every node."""
-    distances: dict[str, int] = {start: 0}
-    queue: deque[str] = deque([start])
-    while queue:
-        current = queue.popleft()
-        for neighbour in adjacency[current]:
-            if neighbour not in distances:
-                distances[neighbour] = distances[current] + 1
-                queue.append(neighbour)
-    return distances
-
-
-def find_seed_id(seed_label: str, id_to_label: dict[str, str]) -> str | None:
-    """Return the node id whose label matches ``seed_label`` (first match)."""
-    for node_id, label in id_to_label.items():
-        if label == seed_label:
-            return node_id
-    return None
-
-
-def rank_suspects(
-    id_to_label: dict[str, str],
-    adjacency: dict[str, list[str]],
-    seed_id: str,
-) -> list[dict[str, object]]:
-    """Compute degree centrality, proximity and suspect score for every node."""
-    n_nodes = len(id_to_label)
-    denom = n_nodes - 1 if n_nodes > 1 else 1
-    distances = bfs_distances(adjacency, seed_id)
-
-    rows: list[dict[str, object]] = []
-    for node_id, label in id_to_label.items():
-        degree = len(adjacency[node_id])
-        degree_centrality = degree / denom
-        distance = distances.get(node_id)  # None means unreachable.
-
-        if distance is None:
-            proximity = 0.0  # 1 / (1 + inf) -> 0
-        else:
-            proximity = 1.0 / (1.0 + distance)
-
-        score = degree_centrality + proximity
-        rows.append(
-            {
-                "label": label,
-                "degree": degree,
-                "degree_centrality": degree_centrality,
-                "distance": distance,
-                "score": score,
-            }
-        )
-
-    # Rank by score descending; tie-break by degree then label for stability.
-    rows.sort(
-        key=lambda r: (-r["score"], -r["degree"], r["label"]),
-    )
-    return rows
-
-
-def format_distance(distance: object) -> str:
-    """Render a BFS distance, showing unreachable nodes as 'inf'."""
-    return "inf" if distance is None else str(distance)
-
-
-def build_markdown(rows: list[dict[str, object]], seed_label: str, top: int) -> str:
-    """Build the Markdown report string."""
-    lines: list[str] = []
-    lines.append("# Suspect Ranking Report")
-    lines.append("")
-    lines.append(
-        "This report ranks graph nodes as bug **suspects** for a graph-guided "
-        "debugging workflow. It is generated by `agent/rank_suspects.py` from "
-        "`data/graph.json` (assignment extension, §5.6)."
-    )
-    lines.append("")
-    lines.append("## Method")
-    lines.append("")
-    lines.append(
-        "Each node is scored by combining two signals computed over the "
-        "**undirected** version of the graph:"
-    )
-    lines.append("")
-    lines.append(
-        "- **Degree centrality** = `degree / (n_nodes - 1)` — how connected the "
-        "node is (wide blast radius if buggy)."
-    )
-    lines.append(
-        "- **Proximity to the seed** = `1 / (1 + distance_to_seed)`, where "
-        "`distance_to_seed` is the BFS shortest-path distance (in hops) from the "
-        "seed node. Unreachable nodes have distance `inf` and proximity `0`."
-    )
-    lines.append("")
-    lines.append("The combined **suspect score** is:")
-    lines.append("")
-    lines.append("```")
-    lines.append("score = degree_centrality + 1 / (1 + distance_to_seed)")
-    lines.append("```")
-    lines.append("")
-    lines.append(
-        "This rewards nodes that are both well-connected and close to the seed, "
-        "so the seed itself and its well-connected neighbours rank highest — "
-        "telling the agent which nodes to inspect first."
-    )
-    lines.append("")
-    lines.append(f"**Seed node:** `{seed_label}`")
-    lines.append("")
-    lines.append(f"## Top {top} suspects")
-    lines.append("")
-    lines.append(
-        "| Rank | Node | Degree | Degree centrality | Distance to seed | Suspect score |"
-    )
-    lines.append(
-        "| ---: | --- | ---: | ---: | ---: | ---: |"
-    )
-    for rank, row in enumerate(rows[:top], start=1):
-        lines.append(
-            "| {rank} | `{label}` | {degree} | {dc:.3f} | {dist} | {score:.3f} |".format(
-                rank=rank,
-                label=row["label"],
-                degree=row["degree"],
-                dc=row["degree_centrality"],
-                dist=format_distance(row["distance"]),
-                score=row["score"],
-            )
-        )
-    lines.append("")
-    return "\n".join(lines)
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:

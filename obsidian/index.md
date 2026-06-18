@@ -5,6 +5,7 @@ selected repository: `andela/buggy-python`.
 
 ## Navigation
 
+- [[research-questions]] - Research questions and findings (hw1 §4)
 - [[hot]] - Graphify hot nodes and graph entry points
 - [[architecture]] - System block diagram and module responsibilities
 - [[oop]] - Class/module relationship diagram

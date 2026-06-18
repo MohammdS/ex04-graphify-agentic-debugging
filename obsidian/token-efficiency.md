@@ -3,14 +3,17 @@
 The token comparison is measured on two models and kept side by side:
 `reports/MEASURED_TOKEN_COMPARISON.md`.
 
-| Model | Workflow | Avg prompt tokens | Avg completion tokens | Avg total tokens | Success rate |
-| --- | --- | ---: | ---: | ---: | ---: |
-| `gemma3:4b` (local, 10 runs) | Naive full-context | 1914.0 | 790.0 | 2704.0 | 0.9 |
-| `gemma3:4b` (local, 10 runs) | Graphify-guided | 683.0 | 558.2 | 1241.2 | 1.0 |
-| `glm-4.7-flashx` (z.ai, 10 runs) | Naive full-context | 1672.0 | 987.9 | 2659.9 | 1.0 |
-| `glm-4.7-flashx` (z.ai, 10 runs) | Graphify-guided | 554.0 | 826.8 | 1380.8 | 1.0 |
+Metrics (hw1 §5.5): tokens consumed, files/units read, investigation rounds, and
+success rate.
 
-Average total-token reduction: `gemma3:4b` **2.18x**, `glm-4.7-flashx` **1.93x**.
+| Model | Workflow | Avg prompt tokens | Avg completion tokens | Avg total tokens | Files read | Rounds | Success rate |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `gemma3:4b` (local, 10 runs) | Naive full-context | 1914.0 | 790.0 | 2704.0 | 6 | 1 | 0.9 |
+| `gemma3:4b` (local, 10 runs) | Graphify-guided | 683.0 | 558.2 | 1241.2 | 1 | 1 | 1.0 |
+| `glm-4.7-flashx` (z.ai, 10 runs) | Naive full-context | 1672.0 | 1024.3 | 2696.3 | 6 | 1 | 1.0 |
+| `glm-4.7-flashx` (z.ai, 10 runs) | Graphify-guided | 554.0 | 788.3 | 1342.3 | 1 | 1 | 0.9 |
+
+Average total-token reduction: `gemma3:4b` **2.18x**, `glm-4.7-flashx` **2.01x**.
 
 The naive prompt sends the whole source and tests. The graph-guided prompt sends
 only the `foo()` graph neighborhood and the preserved broken target file, so the

@@ -19,6 +19,48 @@ small enough to stay compatible with local AI models running through Ollama,
 which was important for measuring token usage locally instead of depending on a
 cloud-only model.
 
+## Research Questions
+
+These are the questions (hw1 §4) that guided the investigation; each is answered
+here and revisited in the reports and the Obsidian vault
+(`obsidian/research-questions.md`).
+
+1. **What is the project's real architecture, and what wasn't obvious at first
+   glance?** The `buggy_python` package looks like a flat set of scripts, but the
+   Graphify graph shows it is really three concerns: `foobar.py` (the
+   mutable-default `foo()`), `io.py` + `loans.json` (file I/O via `read_file()`),
+   and `loop.py`. The graph has 19 nodes, 31 edges, 4 communities, and no import
+   cycles — the I/O data file clustering with `io.py` was not obvious from the
+   file list alone. See `reports/GRAPH_REPORT.md` and `reports/ARCHITECTURE_REPORT.md`.
+
+2. **Which components/modules/functions are the most central (God Nodes)?** The
+   suspect-ranking extension scores `foo()` (1.167), `__init__.py` (1.000),
+   `io.py` (0.722), `foobar.py` (0.667), and `read_file()` (0.611) highest.
+   `__init__.py` is the structural hub (highest degree); `foo()` rises once the
+   `foo()` seed proximity is included. See `reports/SUSPECT_RANKING.md`.
+
+3. **How can the block and OOP schemas be extracted when the original docs are
+   thin?** The Graphify communities and edges drive both: the architecture block
+   diagram (`artifacts/architecture-diagram.mmd`) maps module-to-module flow, and
+   the OOP/relationship diagram (`artifacts/oop-diagram.mmd`) captures the
+   module/function relationships, rather than relying on a directory listing.
+
+4. **How was the bug identified, what was the root cause, and what steps led
+   there?** The agent's `graph_reader` started from `hot.md` and the `foo()`
+   neighborhood (not a linear file read), surfacing `def foo(bar=[])`. Root cause:
+   a mutable default argument evaluated once at definition time, so repeated
+   implicit calls share one list. Fix: the `None`-sentinel form. See
+   `reports/BUG_REPORT.md` and `artifacts/investigation-flow.mmd`.
+
+5. **What was the advantage of graph-guided navigation vs. linear reading, how
+   did the agent save tokens, and what extensions would we add?** Graph-guidance
+   let the agent read **1 file** (`foobar.py`) plus the `foo()` neighborhood
+   instead of all **6** source/test files, cutting total tokens **2.18x**
+   (gemma3:4b) and **2.01x** (glm-4.7-flashx) at equal-or-better success. The
+   original extension is the centrality + proximity suspect ranking
+   (`agent/rank_suspects.py`). See the Token Efficiency and Extensions sections
+   below.
+
 ## Repository Layout
 
 ```text
@@ -118,14 +160,21 @@ The committed token-efficiency evidence is the combined two-model comparison in
 
 Measured on two models and kept side by side (neither overwrites the other):
 
-| Model | Workflow | Avg prompt tokens | Avg completion tokens | Avg total tokens | Success rate |
-| --- | --- | ---: | ---: | ---: | ---: |
-| `gemma3:4b` (local, 10 runs) | Naive full-context | 1914.0 | 790.0 | 2704.0 | 0.9 |
-| `gemma3:4b` (local, 10 runs) | Graphify-guided | 683.0 | 558.2 | 1241.2 | 1.0 |
-| `glm-4.7-flashx` (z.ai, 10 runs) | Naive full-context | 1672.0 | 987.9 | 2659.9 | 1.0 |
-| `glm-4.7-flashx` (z.ai, 10 runs) | Graphify-guided | 554.0 | 826.8 | 1380.8 | 1.0 |
+The §5.5 metrics are: tokens consumed, files/textual units read, investigation
+rounds, and quality (success rate) of reaching the root cause and fix.
 
-Average total-token reduction: `gemma3:4b` **2.18x**, `glm-4.7-flashx` **1.93x**.
+| Model | Workflow | Avg prompt tokens | Avg completion tokens | Avg total tokens | Files read | Rounds | Success rate |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `gemma3:4b` (local, 10 runs) | Naive full-context | 1914.0 | 790.0 | 2704.0 | 6 | 1 | 0.9 |
+| `gemma3:4b` (local, 10 runs) | Graphify-guided | 683.0 | 558.2 | 1241.2 | 1 | 1 | 1.0 |
+| `glm-4.7-flashx` (z.ai, 10 runs) | Naive full-context | 1672.0 | 1024.3 | 2696.3 | 6 | 1 | 1.0 |
+| `glm-4.7-flashx` (z.ai, 10 runs) | Graphify-guided | 554.0 | 788.3 | 1342.3 | 1 | 1 | 0.9 |
+
+Average total-token reduction: `gemma3:4b` **2.18x**, `glm-4.7-flashx` **2.01x**.
+The naive run reads 6 files (`src/buggy_python/{__init__.py, foobar.py, io.py,
+loans.json, loop.py}` + `tests/test_buggy_python.py`); the graph-guided run reads
+1 file (`foobar.py`) plus the `foo()` graph neighborhood. Both modes diagnose in a
+single investigation round.
 
 Both a small local model and a larger cloud model show the same direction: the
 graph-guided prompt uses far fewer prompt tokens and reaches the correct diagnosis
@@ -169,13 +218,78 @@ rise to the top, matching the manual investigation path.
 
 ## Diagrams and Vault
 
-The Obsidian vault is under `obsidian/` and starts at `obsidian/index.md`.
+The Obsidian vault is under `obsidian/` and starts at `obsidian/index.md`. The
+two reverse-engineering schemas required by the assignment are embedded below;
+the source `.mmd` files are in `artifacts/`.
 
-Diagram artifacts:
+### Architecture Block Diagram
 
-- `artifacts/architecture-diagram.mmd`
-- `artifacts/oop-diagram.mmd`
-- `artifacts/investigation-flow.mmd`
+System flow from the original repository through the extracted package, Graphify
+extraction, the LangGraph agent, and the Obsidian vault
+(`artifacts/architecture-diagram.mmd`):
+
+```mermaid
+flowchart LR
+  OriginalRepo["andela/buggy-python"] --> ExtractedPackage["src/buggy_python"]
+  ExtractedPackage --> PublicAPI["__init__.py public API"]
+  PublicAPI --> Foo["foobar.foo"]
+  PublicAPI --> LoanIO["io loan calculations"]
+  PublicAPI --> LambdaFactory["loop.lambda_array"]
+  LoanIO --> DataFile["loans.json"]
+  Tests["pytest regression tests"] --> PublicAPI
+  Graphify["Graphify AST extraction"] --> GraphJson["data/graph.json"]
+  ExtractedPackage --> Graphify
+  GraphJson --> LangGraph["agent/workflow.py"]
+  LangGraph --> Tests
+  GraphJson --> Obsidian["obsidian vault and reports"]
+```
+
+### OOP / Module Relationship Diagram
+
+The selected codebase is **procedural and defines no Python classes**, so this
+schema documents the package, its three modules, and the `LoanRecord` JSON data
+shape (with their public interfaces and `re-exports` / `reads` relationships)
+rather than inheritance hierarchies (`artifacts/oop-diagram.mmd`):
+
+```mermaid
+classDiagram
+  class BuggyPythonPackage {
+    <<package>>
+    +foo()
+    +lambda_array()
+    +read_file()
+    +calculate_unpaid_loans()
+    +calculate_paid_loans()
+    +average_paid_loans()
+  }
+  class FoobarModule {
+    <<module>>
+    +foo(bar=[]) list
+  }
+  class IoModule {
+    <<module>>
+    +read_file(path=None) dict
+    +_amounts_by_status(data, status) list
+    +calculate_unpaid_loans(data) int
+    +calculate_paid_loans(data) float
+    +average_paid_loans(data) float
+  }
+  class LoopModule {
+    <<module>>
+    +lambda_array() list
+  }
+  class LoanRecord {
+    <<data shape>>
+    +amount float
+    +status str
+  }
+  BuggyPythonPackage --> FoobarModule : re-exports
+  BuggyPythonPackage --> IoModule : re-exports
+  BuggyPythonPackage --> LoopModule : re-exports
+  IoModule --> LoanRecord : reads JSON records
+```
+
+The investigation flow diagram is in `artifacts/investigation-flow.mmd`.
 
 ## Obsidian Screenshots
 
