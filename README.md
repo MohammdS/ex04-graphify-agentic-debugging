@@ -311,6 +311,11 @@ The token-efficiency note shows the measured local-model comparison:
 naive full-context prompting versus Graphify-guided prompting, including average
 tokens and success rates.
 
+<img width="1459" height="741" alt="Screenshot 2026-06-18 at 16 27 17" src="https://github.com/user-attachments/assets/9e68c51b-2db7-4dad-be4c-80b63d7df3aa" />
+
+<img width="1468" height="772" alt="Screenshot 2026-06-18 at 16 26 45" src="https://github.com/user-attachments/assets/32f78b8d-b46c-4778-98bd-4a10c8cb1147" />
+
+
 ## Run It
 
 Install dependencies:
